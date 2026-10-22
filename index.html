@@ -814,13 +814,43 @@ im.onerror=function(){URL.revokeObjectURL(u);rej()};im.src=u})}
 var PROMPT='This is a photo of a restaurant or cafe bill. Read it and reply with only a JSON object of this shape: {"restaurant": string or null, "location": string or null, "items": [{"name": string, "amount": number}], "taxAndCharges": number}. "items" are the ordered food and drink lines; "amount" is the full line amount in rupees (quantity × price), as a plain number, and put the quantity in the name when it is more than 1 (e.g. "2 × Masala Chaas"). Never list a subtotal, tax, GST, service charge, discount, round-off or total as an item. "taxAndCharges" is all taxes and service charges added, minus any discounts, as a number (0 if none). If the photo is not a bill or nothing is readable, reply {"items": []}. Do not invent anything.';
 function fin(b){if(cur===b&&!app.hidden&&!$('bcard').closest('.pgv').hidden)renderBill();renderBills()}
 function extract(b,f){return claude_use().then(function(sm){
-if(!sm){b.status='manual';b.msg='Reading items from a photo isn’t available here. You can add the items yourself below.';fin(b);return}
+if(!sm){return ocrRead(b,f)}
 return prep(f).then(function(bl){return sm.json(PROMPT,{images:bl,modelTier:'default'})}).then(function(d){
 var its=(d&&Array.isArray(d.items)?d.items:[]).filter(function(i){return i&&typeof i.name==='string'&&i.name.trim()&&isFinite(Number(i.amount))&&Number(i.amount)>0}).map(function(i){return{n:i.name.trim().slice(0,60),a:Math.round(Number(i.amount)*100)/100,p:[],open:false}});
 if(!its.length){b.status='manual';b.msg='I couldn’t find any items on that photo. Try a clearer, well-lit photo, or add the items yourself below.';fin(b);return}
 b.items=its;b.status='ready';b.msg='';if(d.restaurant&&typeof d.restaurant==='string')b.restaurant=d.restaurant.trim().slice(0,60);if(d.location&&typeof d.location==='string')b.loc=d.location.trim().slice(0,60);
 var tx=Number(d.taxAndCharges);b.tax=isFinite(tx)&&tx>0?Math.round(tx*100)/100:0;fin(b)})
 }).catch(function(e){b.status='manual';var c=e&&e.code;b.msg=c==='not_granted'?'Allow Claude to read this bill when asked, or add the items yourself below.':c==='rate_limited'?'Too many requests right now. Please try again in a little while, or add the items yourself below.':'I couldn’t read that bill. You can try another photo or add the items yourself below.';fin(b)})}
+
+var TESS=null;
+function loadTess(){if(window.Tesseract)return Promise.resolve(window.Tesseract);if(TESS)return TESS;
+TESS=new Promise(function(res,rej){var sc=document.createElement('script');sc.src='https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js';sc.onload=function(){window.Tesseract?res(window.Tesseract):rej()};sc.onerror=function(){TESS=null;rej()};document.head.appendChild(sc)});return TESS}
+function parseOcr(txt){
+var lines=String(txt||'').split(/\r?\n/).map(function(l){return l.replace(/[₹]|\bRs\.?|\bINR\b/gi,' ').replace(/[|_]+/g,' ').replace(/\s+/g,' ').trim()}).filter(Boolean);
+var NUM=/(\d{1,3}(?:,\d{3})+(?:\.\d{1,2})?|\d+(?:\.\d{1,2})?)\s*$/;
+var SKIP=/\b(sub\s*-?\s*total|total|grand|net\s*amt|net\s*amount|amount\s*due|balance|paid|cash|card|upi|change|tender|invoice|bill\s*(no|number)|order|table|date|time|phone|tel|mob|gstin|gst\s*no|fssai|pan|cashier|server|steward|thank|visit|pax|covers|qty|item|description|rate|price)\b/i;
+var TAX=/\b(cgst|sgst|igst|gst|vat|tax|service\s*(charge|tax)?|s\.?\s*charge|packing|delivery|cess|surcharge)\b/i;
+var DISC=/\b(discount|disc|offer|coupon|promo)\b/i;var RND=/\bround\s*-?\s*off\b|\broundoff\b/i;
+var items=[],tax=0,rest=null,loc=null;
+for(var i=0;i<lines.length;i++){var l=lines[i];if(!rest&&/[A-Za-z]{3,}/.test(l)&&!NUM.test(l)&&!/\d{5,}/.test(l)&&!/^(tax|bill|invoice|gst)/i.test(l)){rest=l.replace(/[^A-Za-z0-9&'’.,()\- ]/g,'').trim().slice(0,60)}
+var m=l.match(NUM);if(!m)continue;var amt=parseFloat(m[1].replace(/,/g,''));if(!isFinite(amt)||amt<=0)continue;
+var left=l.slice(0,m.index).trim();
+if(RND.test(l)){var neg=/-\s*\d/.test(l);tax+=neg?-amt:amt;continue}
+if(DISC.test(l)){tax-=amt;continue}
+if(TAX.test(l)&&!/total/i.test(l)){tax+=amt;continue}
+if(SKIP.test(l))continue;
+var base=left.replace(/(\s+\d+(?:\.\d+)?)+$/,'').trim();
+if(/\b(sector|road|rd|nagar|floor|pin|marg|plaza|mall|colony|phase|block|near|opp)\b/i.test(base)||(amt>=100000&&!/\./.test(m[1])))continue;
+var q=base.match(/^(\d{1,2})\s*[xX×.)-]?\s+(?=[A-Za-z])/),qq=q&&+q[1]>1&&+q[1]<30?+q[1]:0;
+var nm=base.replace(/^\d{1,2}\s*[xX×.)-]?\s+(?=[A-Za-z])/,'').replace(/[^A-Za-z0-9&'’()\/\- ]/g,'').trim();
+if(!/[A-Za-z]{3,}/.test(nm))continue;if(amt>200000)continue;
+if(qq)nm=qq+' × '+nm;
+items.push({n:nm.slice(0,60),a:Math.round(amt*100)/100,p:[],open:false})}
+return{items:items,tax:Math.max(0,Math.round(tax*100)/100),restaurant:rest,location:loc}}
+function ocrRead(b,f){return loadTess().then(function(T){return prep(f).then(function(bl){return T.recognize(bl,'eng')})}).then(function(r){
+var d=parseOcr(r&&r.data&&r.data.text);
+if(!d.items.length){b.status='manual';b.msg='I couldn’t find any items on that photo. Try a clearer, well-lit photo with the whole bill in view, or add the items yourself below.';fin(b);return}
+b.items=d.items;b.status='ready';b.msg='';if(d.restaurant)b.restaurant=d.restaurant;b.tax=d.tax;fin(b)}).catch(function(){b.status='manual';b.msg='I couldn’t read that photo on this device. You can try again or add the items yourself below.';fin(b)})}
 function findBill(id){for(var i=0;i<bills.length;i++)if(bills[i].id===id)return bills[i];return null}
 function money(n){n=Math.round(n*100)/100;return '₹'+n.toLocaleString('en-IN',{minimumFractionDigits:n%1?2:0,maximumFractionDigits:2})}
 function ini(n){return String(n).trim().charAt(0).toUpperCase()}
