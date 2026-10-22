@@ -365,7 +365,7 @@ tr.ex td{border-top:0;padding:0 6px 12px}
 .upl{display:flex;align-items:center;gap:10px;margin:0 0 12px;padding:6px 6px 6px 16px;border-radius:16px;background:#f3f3fa}
 .upl b{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:16px}
 .upl button{flex:none;width:40px;height:40px;border:0;border-radius:12px;background:none;color:var(--ink);cursor:pointer;display:grid;place-items:center}
-.sl2 .slt{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%;padding-left:104px;padding-right:16px;font-size:16px}
+.sl2 .slt{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%;padding-left:104px;padding-right:104px;font-size:16px;text-align:center;box-sizing:border-box;width:100%}
 
 
 /* scanner fixes */
@@ -1003,7 +1003,10 @@ function slReset(){slS.reset()}
 var slS=makeSlide($('sl2'),$('slh'),rGo);
 var PAYURL='';
 function cap(s){s=String(s||'');return s.charAt(0).toUpperCase()+s.slice(1)}
-function goPay(url,msgEl){if(!url)return;msgEl.textContent='Opening your UPI app… If nothing opens, copy the UPI ID and pay from your UPI app.';try{location.href=url}catch(x){}}
+function goPay(url,msgEl){if(!url)return;msgEl.textContent='Opening your UPI app… If nothing opens, copy the UPI ID and pay from your UPI app.';var q=url.split('?')[1]||'',ua=navigator.userAgent||'',g=url;
+if(/iPhone|iPad|iPod/i.test(ua))g='gpay://upi/pay?'+q;else if(/Android/i.test(ua))g='intent://upi/pay?'+q+'#Intent;scheme=upi;package=com.google.android.apps.nbu.paisa.user;S.browser_fallback_url='+encodeURIComponent(url)+';end';
+try{location.href=g}catch(x){}
+if(g!==url&&/iPhone|iPad|iPod/i.test(ua))setTimeout(function(){if(!document.hidden){try{location.href=url}catch(x){}}},1600)}
 var bpSl=makeSlide($('bps'),$('bpsh'),function(){goPay(PAYURL,$('bpum'))});
 var fvSl=makeSlide($('fvs2'),$('fvsh'),function(){goPay(FV&&FV.payUrl,$('fvm'))});
 $('fvuc').addEventListener('click',function(){copyTxt($('fvuv').textContent,$('fvm'))});
