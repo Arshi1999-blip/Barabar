@@ -430,6 +430,12 @@ label.ck input.ck{margin:1px 0 0}
 .pmi{flex:none;width:52px;height:52px;border-radius:14px;object-fit:cover}
 .pmn{flex:1}
 .pmc{flex:none;display:grid;place-items:center;color:var(--ink)}
+#fvo{margin:14px 0 0}
+.bf .sl2{margin-bottom:6px!important}
+.tl3{display:block;text-align:center;padding:10px 0 2px;font-size:15px;font-weight:500;color:var(--ink);text-decoration:underline;text-underline-offset:3px}
+.sl2 .slt{font-weight:600!important;color:#141416}
+.sht h2,#dlt,#edt,#pmt{font-size:18px!important;line-height:1.3!important;letter-spacing:-.01em}
+.sht .shd,.sht .ss,#pmd,#dlp{font-size:14px!important;line-height:1.5}
 </style>
 </head>
 <body>
@@ -539,12 +545,12 @@ label.ck input.ck{margin:1px 0 0}
 <div class="rh"><div class="ri" id="fvi" aria-hidden="true">B</div><div class="rt"><b id="fvr"></b><p class="hn" id="fvl" style="margin:2px 0 0"></p></div></div>
 <table class="it"><thead><tr><th scope="col">Item</th><th scope="col">Sharing</th><th scope="col" class="r">Amount</th><th scope="col" class="c"><span class="vh">I had it</span></th></tr></thead><tbody id="fvb"></tbody><tfoot><tr id="fvx" hidden><td>Tax &amp; charges</td><td></td><td class="r" id="fvxv"></td><td></td></tr><tr class="tot"><td>Total bill</td><td></td><td class="r" id="fvtt"></td><td></td></tr></tfoot></table>
 </div>
+<div class="owe" id="fvo" hidden><span id="fvol"></span><b id="fvov"></b></div>
 <div class="bf" id="fvf" hidden>
 <div class="bt"><div><span class="hn">Items you picked</span><b id="fvt">₹0</b></div><div class="r"><span class="hn">Your share</span><b class="ac2" id="fvv">₹0</b></div></div>
-<div class="owe" id="fvo" hidden><span id="fvol"></span><b id="fvov"></b></div>
 <div class="upl" id="fvu" hidden><span class="hn">UPI ID</span><b id="fvuv"></b><button type="button" id="fvuc" aria-label="Copy UPI ID"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2.5"/><path d="M15 9V6.5A2.5 2.5 0 0 0 12.5 4h-6A2.5 2.5 0 0 0 4 6.5v6A2.5 2.5 0 0 0 6.5 15H9"/></svg></button></div>
 <div class="sl2" id="fvs2" hidden style="margin-bottom:10px"><span class="slt" id="fvst"></span><button type="button" class="slh" id="fvsh" aria-label="Slide to pay on UPI. Or press Enter."><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 6l6 6-6 6M12 6l6 6-6 6"/></svg></button></div>
-<a class="btn alt" id="fvw" href="#" target="_blank" rel="noopener noreferrer" style="width:100%">Send my share on WhatsApp</a>
+<a class="tl3" id="fvw" href="#" target="_blank" rel="noopener noreferrer">Send my share on WhatsApp</a>
 </div>
 <p class="hn" id="fvm" role="status" style="min-height:20px"></p>
 <p class="hn" style="margin:24px 0 40px;text-align:center">Made with <a href="#top" style="text-decoration:underline">Barabar</a>. Split your own bill in a minute.</p>
@@ -998,9 +1004,10 @@ cur.items.push({n:n.slice(0,60),a:Math.round(a*100)/100,p:[],open:false});if(cur
 function copyTxt(x,out){var bad=function(){out.textContent='Couldn’t copy. Please select the text and copy it.'};try{navigator.clipboard.writeText(x).then(function(){out.textContent='Copied to clipboard.'},bad)}catch(e){bad()}}
 function b64e(s){return btoa(unescape(encodeURIComponent(s))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'')}
 function b64d(s){s=s.replace(/-/g,'+').replace(/_/g,'/');while(s.length%4)s+='=';return decodeURIComponent(escape(atob(s)))}
-function buildLink(f){var b=cur,hn=first(user&&user.name)||'Host',pn=b.payer&&b.payer!=='You'?b.payer:'',o={r:b.restaurant,l:b.loc,t:b.tax,h:hn,u:payerUpi(b),p:pn,f:f||'',i:b.items.map(function(i){return[i.n,i.a,i.p.map(function(x){return x==='You'?hn:x})]})};
+function buildLink(f){var b=cur;if(!b.key)b.key=Math.random().toString(36).slice(2,10)+Math.random().toString(36).slice(2,6);var hn=first(user&&user.name)||'Host',pn=b.payer&&b.payer!=='You'?b.payer:'',o={k:b.key,r:b.restaurant,l:b.loc,t:b.tax,h:hn,u:payerUpi(b),p:pn,f:f||'',i:b.items.map(function(i){return[i.n,i.a,i.p.map(function(x){return x==='You'?hn:x})]})};
 return location.href.split('#')[0].split('?')[0]+'?b='+b64e(JSON.stringify(o))}
-var FV=null;
+var FV=null,FVT=null,FVP=null,FVPOST=null;
+function picksUrl(){return SCAN_URL?SCAN_URL.replace(/\/$/,'')+'/picks':''}
 function renderFriend(pl){var d=null;try{d=JSON.parse(b64d(pl.split('&')[0]))}catch(x){d=null}
 var ok=d&&Array.isArray(d.i)&&d.i.length&&d.i.length<=200&&d.i.every(function(r){return Array.isArray(r)&&typeof r[0]==='string'&&isFinite(r[1])&&r[1]>0&&Array.isArray(r[2])});
 $('fvc').hidden=!ok;$('fvf').hidden=!ok;if(!ok){FV=null;$('fvh').textContent='This link doesn’t work';$('fvs').textContent='Ask your friend to send the link again.';return}
@@ -1009,10 +1016,14 @@ d=FV.d;var host=String(d.h||'Your friend').slice(0,24);
 $('fvh').innerHTML='';$('fvh').appendChild(document.createTextNode(FV.nm?'Hi ':'Pick your '));var sp=document.createElement('span');sp.className='ac';sp.textContent=FV.nm||'items';$('fvh').appendChild(sp);
 $('fvs').textContent=host+' shared this bill. Tick the items you had'+(d.p?', then pay '+cap(String(d.p).slice(0,24))+' your share.':', then pay your share.');
 $('fvr').textContent=String(d.r||'Your bill').slice(0,60);$('fvi').textContent=ini(d.r||'B')||'B';$('fvl').textContent=String(d.l||'').slice(0,60);
-fvDraw()}
+fvDraw();fvLive()}
+function fvLive(){var u=picksUrl();if(!u||!FV||!FV.d.k||FVT)return;FVT=setInterval(fvPoll,4000);fvPoll()}
+function fvPoll(){if(document.hidden||$('fv').hidden||!FV)return;var u=picksUrl()+'?id='+encodeURIComponent(FV.d.k);fetch(u,{cache:'no-store'}).then(function(r){return r.ok?r.json():null}).then(function(m){if(!m||!m.p||!FV)return;var lv={},ln={};Object.keys(m.p).forEach(function(k){var e=m.p[k];if(e&&Array.isArray(e.s)){lv[k.toLowerCase()]=e.s;ln[k.toLowerCase()]=e.n||k}});var me=FV.nm.toLowerCase();if(me&&lv[me]&&!FV.touched){FV.sel=FV.d.i.map(function(r,ix){return lv[me].indexOf(ix)>=0});FV.touched=true}var j=JSON.stringify([lv,FV.sel]);if(j!==FV.lj){FV.lj=j;FV.live=lv;FV.liveN=ln;fvDraw()}}).catch(function(){})}
+function fvPost(){var u=picksUrl();if(!u||!FV||!FV.d.k||!FV.nm)return;clearTimeout(FVPOST);FVPOST=setTimeout(function(){var s=[];FV.sel.forEach(function(v,i){if(v)s.push(i)});fetch(u,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:FV.d.k,name:FV.nm,sel:s})}).catch(function(){})},350)}
 function fvDraw(){var d=FV.d,lc=FV.nm.toLowerCase(),tb=$('fvb'),sub=0,tax=Number(d.t)>0?Number(d.t):0;tb.textContent='';
 d.i.forEach(function(r){sub+=Number(r[1])});var f=sub>0?1+tax/sub:1,sel=0,sh=0,names=[];
 d.i.forEach(function(r,ix){var a=Number(r[1]),oth=r[2].filter(function(x){return String(x).toLowerCase()!==lc}).map(function(x){return String(x).slice(0,24)});
+if(FV.live)Object.keys(FV.live).forEach(function(nm){if(nm===lc)return;var sl=FV.live[nm];if(sl&&sl.indexOf(ix)>=0&&!oth.some(function(o){return o.toLowerCase()===nm}))oth.push(FV.liveN[nm]||nm)});
 var tr=document.createElement('tr'),n=document.createElement('td');n.className='inm';n.textContent=String(r[0]).slice(0,60);
 var sg=document.createElement('td'),pv=document.createElement('span');pv.className='pvf';var who=oth.slice();if(FV.sel[ix])who.push(FV.nm||'You');who.slice(0,3).forEach(function(q){var a2=document.createElement('span');a2.className='pa';a2.textContent=ini(q);a2.setAttribute('aria-hidden','true');pv.appendChild(a2)});if(who.length>3){var m2=document.createElement('span');m2.className='pa';m2.textContent='+'+(who.length-3);pv.appendChild(m2)}if(who.length)pv.setAttribute('aria-label','Shared by '+who.join(', '));sg.appendChild(pv);
 var am=document.createElement('td');am.className='r';am.textContent=money(a);
@@ -1027,7 +1038,7 @@ else{$('fvu').hidden=true;if(sh>0){sl.hidden=false;$('fvst').textContent='Pay '+
 FV.noUpi=!UP.test(up)&&sh>0;FV.sh=sh;FV.payee=payee;$('fvo').hidden=!(sh>0);$('fvol').textContent='You owe '+payee;$('fvov').textContent=money(sh);
 var w=$('fvw');w.href='https://wa.me/?text='+encodeURIComponent((FV.nm||'My')+(FV.nm?'’s':'')+' share for '+String(d.r||'the bill').slice(0,60)+': '+money(sh)+(names.length?' ('+names.join(', ')+')':'')+'. Sent with Barabar');
 $('fvm').textContent=UP.test(up)?(sh>0?'':'Tick the items you had to see what you owe.'):(sh>0?payee+' hasn’t added a UPI ID yet. Swipe to pick your payment app, then pay '+payee+' with their UPI ID or number.':'Tick the items you had to see what you owe.')}
-$('fvb').addEventListener('change',function(e){var c=e.target.closest('[data-x]');if(!c||!FV)return;FV.sel[+c.dataset.x]=c.checked;fvDraw();var n=document.querySelector('#fvb [data-x="'+c.dataset.x+'"]');if(n)n.focus({preventScroll:true})});
+$('fvb').addEventListener('change',function(e){var c=e.target.closest('[data-x]');if(!c||!FV)return;FV.sel[+c.dataset.x]=c.checked;FV.touched=true;fvPost();fvDraw();var n=document.querySelector('#fvb [data-x="'+c.dataset.x+'"]');if(n)n.focus({preventScroll:true})});
 $('hbl').addEventListener('click',function(){var f=$('blf');f.hidden=!f.hidden;if(!f.hidden)$('bli').focus()});
 $('blf').addEventListener('submit',function(e){e.preventDefault();var v=$('bli').value.trim(),m=/[?#&]b=([A-Za-z0-9_-]+)/.exec(v);if(!m){msg.textContent='That doesn’t look like a bill link. Please paste the whole link.';return}location.hash='#b='+m[1]});
 var RS={stream:null,busy:false,bill:null,trig:null,cv:document.createElement('canvas')};
