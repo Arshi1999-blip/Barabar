@@ -436,6 +436,10 @@ label.ck input.ck{margin:1px 0 0}
 .sl2 .slt{font-weight:600!important;color:#141416}
 .sht h2,#dlt,#edt,#pmt{font-size:18px!important;line-height:1.3!important;letter-spacing:-.01em}
 .sht .shd,.sht .ss,#pmd,#dlp{font-size:14px!important;line-height:1.5}
+#fvn{margin:18px 0 0}.fnm label{display:block;font-weight:600;font-size:14px;margin-bottom:8px}.fnm div{display:flex;gap:8px}.fnm input{flex:1;min-width:0;height:48px;border:1.5px solid #e6e6ea;border-radius:14px;padding:0 14px;font:inherit;font-size:16px;background:#fff}.fnm .btn{height:48px;padding:0 20px;width:auto}
+.it th.q,.it td.q{text-align:center;width:36px;padding-left:2px;padding-right:2px}.it td.q{color:#5c5c63;font-weight:500}
+.it td.inm{width:auto}
+.pmt{font-size:14px!important}
 </style>
 </head>
 <body>
@@ -541,9 +545,10 @@ label.ck input.ck{margin:1px 0 0}
 <main id="fv" hidden aria-label="Shared bill"><div class="fw">
 <a class="logo" href="#top">Barabar.</a>
 <h1 id="fvh" tabindex="-1"></h1><p class="ss" id="fvs" style="margin-top:8px"></p>
+<form class="fnm" id="fvn" hidden><label for="fvni">What’s your name?</label><div><input id="fvni" maxlength="24" autocomplete="given-name" placeholder="Your name"><button class="btn" type="submit">Continue</button></div></form>
 <div class="bcd" id="fvc" hidden>
 <div class="rh"><div class="ri" id="fvi" aria-hidden="true">B</div><div class="rt"><b id="fvr"></b><p class="hn" id="fvl" style="margin:2px 0 0"></p></div></div>
-<table class="it"><thead><tr><th scope="col">Item</th><th scope="col">Sharing</th><th scope="col" class="r">Amount</th><th scope="col" class="c"><span class="vh">I had it</span></th></tr></thead><tbody id="fvb"></tbody><tfoot><tr id="fvx" hidden><td>Tax &amp; charges</td><td></td><td class="r" id="fvxv"></td><td></td></tr><tr class="tot"><td>Total bill</td><td></td><td class="r" id="fvtt"></td><td></td></tr></tfoot></table>
+<table class="it"><thead><tr><th scope="col">Item</th><th scope="col" class="q">Qty</th><th scope="col">Sharing</th><th scope="col" class="r">Amount</th><th scope="col" class="c"><span class="vh">I had it</span></th></tr></thead><tbody id="fvb"></tbody><tfoot><tr id="fvx" hidden><td colspan="3">Tax &amp; charges</td><td class="r" id="fvxv"></td><td></td></tr><tr class="tot"><td colspan="3">Total bill</td><td class="r" id="fvtt"></td><td></td></tr></tfoot></table>
 </div>
 <div class="owe" id="fvo" hidden><span id="fvol"></span><b id="fvov"></b></div>
 <div class="bf" id="fvf" hidden>
@@ -1011,12 +1016,13 @@ function picksUrl(){return SCAN_URL?SCAN_URL.replace(/\/$/,'')+'/picks':''}
 function renderFriend(pl){var d=null;try{d=JSON.parse(b64d(pl.split('&')[0]))}catch(x){d=null}
 var ok=d&&Array.isArray(d.i)&&d.i.length&&d.i.length<=200&&d.i.every(function(r){return Array.isArray(r)&&typeof r[0]==='string'&&isFinite(r[1])&&r[1]>0&&Array.isArray(r[2])});
 $('fvc').hidden=!ok;$('fvf').hidden=!ok;if(!ok){FV=null;$('fvh').textContent='This link doesn’t work';$('fvs').textContent='Ask your friend to send the link again.';return}
-var key=JSON.stringify(d);if(!FV||FV.key!==key){var nm=String(d.f||'').trim(),lc=nm.toLowerCase();FV={key:key,d:d,nm:nm,sel:d.i.map(function(r){return lc&&r[2].some(function(x){return String(x).toLowerCase()===lc})})}}
-d=FV.d;var host=String(d.h||'Your friend').slice(0,24);
+var key=JSON.stringify(d);if(!FV||FV.key!==key){var nm=String(d.f||'').trim();if(!nm){try{nm=(localStorage.getItem('bb_fn')||'').trim().slice(0,24)}catch(x){}}var lc=nm.toLowerCase();FV={key:key,d:d,nm:nm,sel:d.i.map(function(r){return lc&&r[2].some(function(x){return String(x).toLowerCase()===lc})})}}
+FV.pl=pl;d=FV.d;var host=String(d.h||'Your friend').slice(0,24);
 $('fvh').innerHTML='';$('fvh').appendChild(document.createTextNode(FV.nm?'Hi ':'Pick your '));var sp=document.createElement('span');sp.className='ac';sp.textContent=FV.nm||'items';$('fvh').appendChild(sp);
 $('fvs').textContent=host+' shared this bill. Tick the items you had'+(d.p?', then pay '+cap(String(d.p).slice(0,24))+' your share.':', then pay your share.');
 $('fvr').textContent=String(d.r||'Your bill').slice(0,60);$('fvi').textContent=ini(d.r||'B')||'B';$('fvl').textContent=String(d.l||'').slice(0,60);
-fvDraw();fvLive()}
+$('fvn').hidden=!!FV.nm;fvDraw();fvLive()}
+$('fvn').addEventListener('submit',function(e){e.preventDefault();var v=$('fvni').value.trim().slice(0,24);if(!v||!FV)return;try{localStorage.setItem('bb_fn',v)}catch(x){}FV.nm=v;renderFriend(FV.pl)});
 function fvLive(){var u=picksUrl();if(!u||!FV||!FV.d.k||FVT)return;FVT=setInterval(fvPoll,4000);fvPoll()}
 function fvPoll(){if(document.hidden||$('fv').hidden||!FV)return;var u=picksUrl()+'?id='+encodeURIComponent(FV.d.k);fetch(u,{cache:'no-store'}).then(function(r){return r.ok?r.json():null}).then(function(m){if(!m||!m.p||!FV)return;var lv={},ln={};Object.keys(m.p).forEach(function(k){var e=m.p[k];if(e&&Array.isArray(e.s)){lv[k.toLowerCase()]=e.s;ln[k.toLowerCase()]=e.n||k}});var me=FV.nm.toLowerCase();if(me&&lv[me]&&!FV.touched){FV.sel=FV.d.i.map(function(r,ix){return lv[me].indexOf(ix)>=0});FV.touched=true}var j=JSON.stringify([lv,FV.sel]);if(j!==FV.lj){FV.lj=j;FV.live=lv;FV.liveN=ln;fvDraw()}}).catch(function(){})}
 function fvPost(){var u=picksUrl();if(!u||!FV||!FV.d.k||!FV.nm)return;clearTimeout(FVPOST);FVPOST=setTimeout(function(){var s=[];FV.sel.forEach(function(v,i){if(v)s.push(i)});fetch(u,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:FV.d.k,name:FV.nm,sel:s})}).catch(function(){})},350)}
@@ -1024,11 +1030,11 @@ function fvDraw(){var d=FV.d,lc=FV.nm.toLowerCase(),tb=$('fvb'),sub=0,tax=Number
 d.i.forEach(function(r){sub+=Number(r[1])});var f=sub>0?1+tax/sub:1,sel=0,sh=0,names=[];
 d.i.forEach(function(r,ix){var a=Number(r[1]),oth=r[2].filter(function(x){return String(x).toLowerCase()!==lc}).map(function(x){return String(x).slice(0,24)});
 if(FV.live)Object.keys(FV.live).forEach(function(nm){if(nm===lc)return;var sl=FV.live[nm];if(sl&&sl.indexOf(ix)>=0&&!oth.some(function(o){return o.toLowerCase()===nm}))oth.push(FV.liveN[nm]||nm)});
-var tr=document.createElement('tr'),n=document.createElement('td');n.className='inm';n.textContent=String(r[0]).slice(0,60);
+var tr=document.createElement('tr'),n=document.createElement('td');n.className='inm';var qm=/^\s*(\d{1,3})\s*[x×]\s*(.+)$/i.exec(String(r[0])),qn=qm?qm[2]:String(r[0]),qt=document.createElement('td');qt.className='q';qt.textContent=qm?qm[1]:'1';n.textContent=qn.length>16?qn.slice(0,15).trim()+'…':qn;n.title=qn;
 var sg=document.createElement('td'),pv=document.createElement('span');pv.className='pvf';var who=oth.slice();if(FV.sel[ix])who.push(FV.nm||'You');who.slice(0,3).forEach(function(q){var a2=document.createElement('span');a2.className='pa';a2.textContent=ini(q);a2.setAttribute('aria-hidden','true');pv.appendChild(a2)});if(who.length>3){var m2=document.createElement('span');m2.className='pa';m2.textContent='+'+(who.length-3);pv.appendChild(m2)}if(who.length)pv.setAttribute('aria-label','Shared by '+who.join(', '));sg.appendChild(pv);
 var am=document.createElement('td');am.className='r';am.textContent=money(a);
 var cb=document.createElement('td');cb.className='c';var ck=document.createElement('input');ck.type='checkbox';ck.className='ck';ck.checked=FV.sel[ix];ck.dataset.x=ix;ck.setAttribute('aria-label','I had '+r[0]);cb.appendChild(ck);
-tr.appendChild(n);tr.appendChild(sg);tr.appendChild(am);tr.appendChild(cb);tb.appendChild(tr);
+tr.appendChild(n);tr.appendChild(qt);tr.appendChild(sg);tr.appendChild(am);tr.appendChild(cb);tb.appendChild(tr);
 if(FV.sel[ix]){sel+=a;sh+=a/(oth.length+1)*f;names.push(String(r[0]).slice(0,60))}});
 $('fvx').hidden=!(tax>0);$('fvxv').textContent=money(tax);$('fvtt').textContent=money(sub+tax);
 sh=Math.round(sh*100)/100;$('fvt').textContent=money(sel);$('fvv').textContent=money(sh);
