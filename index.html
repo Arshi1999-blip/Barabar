@@ -829,11 +829,13 @@ var its=(d&&Array.isArray(d.items)?d.items:[]).filter(function(i){return i&&type
 if(!its.length){b.status='manual';b.msg='I couldn’t find any items on that photo. Try a clearer, well-lit photo, or add the items yourself below.';fin(b);return}
 b.items=its;b.status='ready';b.msg='';if(d.restaurant&&typeof d.restaurant==='string')b.restaurant=d.restaurant.trim().slice(0,60);if(d.location&&typeof d.location==='string')b.loc=d.location.trim().slice(0,60);
 var tx=Number(d.taxAndCharges);b.tax=isFinite(tx)&&tx>0?Math.round(tx*100)/100:0;fin(b)}
-function cloudRead(b,f){var ctl=window.AbortController?new AbortController():null,tm=setTimeout(function(){ctl&&ctl.abort()},15000);
+function cloudRead(b,f){var ctl=window.AbortController?new AbortController():null,tm=setTimeout(function(){ctl&&ctl.abort()},15000),why='';
+function bail(){clearTimeout(tm);return ocrRead(b,f).then(function(){if(why)b.msg=(b.status==='ready'?'Fast reader unavailable. Used on-device reading, so please check the amounts.':b.msg)+' ['+why+']';fin(b)})}
 return prep(f).then(function(bl){return new Promise(function(res,rej){var fr=new FileReader();fr.onload=function(){res(String(fr.result).split(',')[1])};fr.onerror=rej;fr.readAsDataURL(bl)})})
 .then(function(b64){return fetch(SCAN_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({image:b64,mime:'image/jpeg'}),signal:ctl?ctl.signal:undefined})})
-.then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(d){clearTimeout(tm);if(!d||!Array.isArray(d.items)||!d.items.length)return ocrRead(b,f);applyRead(b,d)})
-.catch(function(){clearTimeout(tm);return ocrRead(b,f)})}
+.then(function(r){return r.json().catch(function(){return{}}).then(function(d){if(!r.ok){why=(d&&d.error?d.error:'error')+' '+r.status+(d&&d.status?'/'+d.status:'')+(d&&d.detail?': '+String(d.detail).slice(0,120):'');throw 0}return d})})
+.then(function(d){clearTimeout(tm);if(!d||!Array.isArray(d.items)||!d.items.length){why='no items found';return bail()}applyRead(b,d)})
+.catch(function(e){if(!why)why=e&&e.name==='AbortError'?'timed out':'network blocked';return bail()})}
 var TESS=null;
 function loadTess(){if(window.Tesseract)return Promise.resolve(window.Tesseract);if(TESS)return TESS;
 TESS=new Promise(function(res,rej){var sc=document.createElement('script');sc.src='https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js';sc.onload=function(){window.Tesseract?res(window.Tesseract):rej()};sc.onerror=function(){TESS=null;rej()};document.head.appendChild(sc)});return TESS}
