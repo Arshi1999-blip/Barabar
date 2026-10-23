@@ -439,7 +439,19 @@ label.ck input.ck{margin:1px 0 0}
 #fvn{margin:18px 0 0}.fnm label{display:block;font-weight:600;font-size:14px;margin-bottom:8px}.fnm div{display:flex;gap:8px}.fnm input{flex:1;min-width:0;height:48px;border:1.5px solid #e6e6ea;border-radius:14px;padding:0 14px;font:inherit;font-size:16px;background:#fff}.fnm .btn{height:48px;padding:0 20px;width:auto}
 .it th.q,.it td.q{text-align:center;width:36px;padding-left:2px;padding-right:2px}.it td.q{color:#5c5c63;font-weight:500}
 .it td.inm{width:auto}
-.pmt{font-size:14px!important}
+.pmt{font-size:16px!important;font-weight:600!important}
+#fvc table.it{table-layout:fixed;width:100%}
+#fvc .it th:nth-child(1){width:auto}#fvc .it th.q{width:34px}#fvc .it th:nth-child(3){width:72px}#fvc .it th.r{width:58px;padding-right:0;letter-spacing:0}#fvc .it th.c{width:40px}
+#fvc .it td,#fvc .it th{padding-left:4px;padding-right:4px;overflow:hidden}
+#fvc .it td.inm{overflow:hidden;overflow-wrap:break-word;word-break:normal;hyphens:none;line-height:1.3;font-size:15px}
+#fvc .it th{font-size:11px;letter-spacing:.02em;padding-left:0;padding-right:0;text-align:center}#fvc .it th:first-child{text-align:left;padding-left:4px}#fvc .it th.r{text-align:right}#fvc .it th.c{padding:0}
+#fvc .it td.r{padding-right:0;text-align:right}
+#fvc .it .pvf{padding:0;min-width:0}
+#fvc .it td.c{padding-right:0;text-align:right;overflow:visible}
+.fw{min-width:0}.bcd,.bf,.owe{box-sizing:border-box;max-width:100%}
+.sl2 .slt{padding-left:76px!important;padding-right:20px!important}
+@media(max-width:380px){#fvc .it th:nth-child(3){width:62px}.fw .pa{width:24px;height:24px;font-size:11px;margin-left:-7px}#fvc .it th.q{width:30px}#fvc .it th.r{width:48px}#fvc .it td.inm{font-size:14px}.bcd{padding:14px}}
+@media(max-width:340px){#fvc .it td.inm{font-size:13px}#fvc .it th:nth-child(3){width:58px}}
 </style>
 </head>
 <body>
@@ -548,7 +560,7 @@ label.ck input.ck{margin:1px 0 0}
 <form class="fnm" id="fvn" hidden><label for="fvni">What’s your name?</label><div><input id="fvni" maxlength="24" autocomplete="given-name" placeholder="Your name"><button class="btn" type="submit">Continue</button></div></form>
 <div class="bcd" id="fvc" hidden>
 <div class="rh"><div class="ri" id="fvi" aria-hidden="true">B</div><div class="rt"><b id="fvr"></b><p class="hn" id="fvl" style="margin:2px 0 0"></p></div></div>
-<table class="it"><thead><tr><th scope="col">Item</th><th scope="col" class="q">Qty</th><th scope="col">Sharing</th><th scope="col" class="r">Amount</th><th scope="col" class="c"><span class="vh">I had it</span></th></tr></thead><tbody id="fvb"></tbody><tfoot><tr id="fvx" hidden><td colspan="3">Tax &amp; charges</td><td class="r" id="fvxv"></td><td></td></tr><tr class="tot"><td colspan="3">Total bill</td><td class="r" id="fvtt"></td><td></td></tr></tfoot></table>
+<table class="it"><thead><tr><th scope="col">Item</th><th scope="col" class="q">Qty</th><th scope="col">Sharing</th><th scope="col" class="r">Amt</th><th scope="col" class="c"><span class="vh">I had it</span></th></tr></thead><tbody id="fvb"></tbody><tfoot><tr id="fvx" hidden><td colspan="3">Tax &amp; charges</td><td class="r" id="fvxv"></td><td></td></tr><tr class="tot"><td colspan="3">Total bill</td><td class="r" id="fvtt"></td><td></td></tr></tfoot></table>
 </div>
 <div class="owe" id="fvo" hidden><span id="fvol"></span><b id="fvov"></b></div>
 <div class="bf" id="fvf" hidden>
@@ -1030,7 +1042,7 @@ function fvDraw(){var d=FV.d,lc=FV.nm.toLowerCase(),tb=$('fvb'),sub=0,tax=Number
 d.i.forEach(function(r){sub+=Number(r[1])});var f=sub>0?1+tax/sub:1,sel=0,sh=0,names=[];
 d.i.forEach(function(r,ix){var a=Number(r[1]),oth=r[2].filter(function(x){return String(x).toLowerCase()!==lc}).map(function(x){return String(x).slice(0,24)});
 if(FV.live)Object.keys(FV.live).forEach(function(nm){if(nm===lc)return;var sl=FV.live[nm];if(sl&&sl.indexOf(ix)>=0&&!oth.some(function(o){return o.toLowerCase()===nm}))oth.push(FV.liveN[nm]||nm)});
-var tr=document.createElement('tr'),n=document.createElement('td');n.className='inm';var qm=/^\s*(\d{1,3})\s*[x×]\s*(.+)$/i.exec(String(r[0])),qn=qm?qm[2]:String(r[0]),qt=document.createElement('td');qt.className='q';qt.textContent=qm?qm[1]:'1';n.textContent=qn.length>16?qn.slice(0,15).trim()+'…':qn;n.title=qn;
+var tr=document.createElement('tr'),n=document.createElement('td');n.className='inm';var qm=/^\s*(\d{1,3})\s*[x×]\s*(.+)$/i.exec(String(r[0])),qn=qm?qm[2]:String(r[0]),qt=document.createElement('td');qt.className='q';qt.textContent=qm?qm[1]:'1';n.textContent=qn.length>18?qn.slice(0,17).trim()+'…':qn;n.title=qn;
 var sg=document.createElement('td'),pv=document.createElement('span');pv.className='pvf';var who=oth.slice();if(FV.sel[ix])who.push(FV.nm||'You');who.slice(0,3).forEach(function(q){var a2=document.createElement('span');a2.className='pa';a2.textContent=ini(q);a2.setAttribute('aria-hidden','true');pv.appendChild(a2)});if(who.length>3){var m2=document.createElement('span');m2.className='pa';m2.textContent='+'+(who.length-3);pv.appendChild(m2)}if(who.length)pv.setAttribute('aria-label','Shared by '+who.join(', '));sg.appendChild(pv);
 var am=document.createElement('td');am.className='r';am.textContent=money(a);
 var cb=document.createElement('td');cb.className='c';var ck=document.createElement('input');ck.type='checkbox';ck.className='ck';ck.checked=FV.sel[ix];ck.dataset.x=ix;ck.setAttribute('aria-label','I had '+r[0]);cb.appendChild(ck);
