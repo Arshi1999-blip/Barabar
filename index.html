@@ -1039,7 +1039,7 @@ var its=d.i.map(function(r){var p=r[2].map(map).filter(function(x,j,a){return a.
 var hn=map(d.h||'');if(d.h&&ppl.indexOf(hn)<0)ppl.push(hn);
 b={id:'b'+(++seq),n:seq,grp:null,name:String(d.r||'Shared bill').slice(0,60),url:null,status:'ready',restaurant:String(d.r||'Shared bill').slice(0,60),loc:String(d.l||'').slice(0,60),items:its,tax:Number(d.t)>0?Number(d.t):0,people:ppl,payer:'You',meName:cap(py),msg:'',sum:false,key:d.k||(Math.random().toString(36).slice(2,10)+Math.random().toString(36).slice(2,6)),trip:null};b.grp='g'+b.id;bills.unshift(b);renderBills()}
 try{history.replaceState(null,'',location.pathname)}catch(x){}
-location.hash='#app/bill/'+b.id}
+location.hash='#app/bill/'+b.id;setTimeout(hostPoll,300);setTimeout(hostPoll,1500)}
 $('fvpb').addEventListener('click',fvPaid);
 var HPT=null;
 function hostPoll(){var u=picksUrl();if(!u||!cur||!cur.key||document.hidden)return;var ae=document.activeElement;if(ae&&/INPUT|TEXTAREA/.test(ae.tagName)&&$('app').contains(ae))return;var b=cur,id=b.key;fetch(u+'?id='+encodeURIComponent(id),{cache:'no-store'}).then(function(r){return r.ok?r.json():null}).then(function(m){if(!m||!m.p||cur!==b)return;var before=JSON.stringify([b.people,b.items.map(function(i){return i.p})]);
