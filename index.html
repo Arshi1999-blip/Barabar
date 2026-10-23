@@ -365,7 +365,7 @@ tr.ex td{border-top:0;padding:0 6px 12px}
 .upl{display:flex;align-items:center;gap:10px;margin:0 0 12px;padding:6px 6px 6px 16px;border-radius:16px;background:#f3f3fa}
 .upl b{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:16px}
 .upl button{flex:none;width:40px;height:40px;border:0;border-radius:12px;background:none;color:var(--ink);cursor:pointer;display:grid;place-items:center}
-.sl2 .slt{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%;padding-left:104px;padding-right:104px;font-size:16px;text-align:center;box-sizing:border-box;width:100%}
+.sl2 .slt{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%;padding-left:100px;padding-right:100px;font-size:15px;text-align:center;box-sizing:border-box;width:100%}
 
 
 /* scanner fixes */
@@ -420,6 +420,13 @@ label.ck input.ck{margin:1px 0 0}
 .hrt{display:flex;align-items:center;gap:10px;flex:none}
 .nb{display:grid;place-items:center;width:44px;height:44px;border:1px solid var(--ln);border-radius:50%;background:var(--cd);color:var(--ink)}
 @media (max-width:860px){.sdn .dn-n{display:none}}
+.pvf{display:inline-flex;align-items:center;min-height:44px;padding:0 4px}
+.owe{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 14px;padding:16px 18px;border:1px solid #cfdcf5;border-radius:20px;background:#eef3fc;font-weight:500}
+.owe b{font-weight:700;white-space:nowrap}
+.pmg{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.pmt{display:flex;flex-direction:column;align-items:center;gap:8px;padding:14px 6px;border:1px solid var(--ln);border-radius:20px;background:#f6f6f7;cursor:pointer;font:inherit;font-weight:600;font-size:14px;color:var(--ink)}
+.pmt:active{transform:scale(.97)}
+.pmi{display:grid;place-items:center;width:48px;height:48px;border-radius:14px;background:#fff;box-shadow:0 1px 3px rgba(20,20,22,.1);font-weight:700;font-size:18px}
 </style>
 </head>
 <body>
@@ -527,10 +534,11 @@ label.ck input.ck{margin:1px 0 0}
 <h1 id="fvh" tabindex="-1"></h1><p class="ss" id="fvs" style="margin-top:8px"></p>
 <div class="bcd" id="fvc" hidden>
 <div class="rh"><div class="ri" id="fvi" aria-hidden="true">B</div><div class="rt"><b id="fvr"></b><p class="hn" id="fvl" style="margin:2px 0 0"></p></div></div>
-<table class="it"><thead><tr><th scope="col">Item</th><th scope="col" class="r">Amount</th><th scope="col" class="c"><span class="vh">I had it</span></th></tr></thead><tbody id="fvb"></tbody><tfoot><tr id="fvx" hidden><td>Tax &amp; charges</td><td class="r" id="fvxv"></td><td></td></tr><tr class="tot"><td>Total bill</td><td class="r" id="fvtt"></td><td></td></tr></tfoot></table>
+<table class="it"><thead><tr><th scope="col">Item</th><th scope="col">Sharing</th><th scope="col" class="r">Amount</th><th scope="col" class="c"><span class="vh">I had it</span></th></tr></thead><tbody id="fvb"></tbody><tfoot><tr id="fvx" hidden><td>Tax &amp; charges</td><td></td><td class="r" id="fvxv"></td><td></td></tr><tr class="tot"><td>Total bill</td><td></td><td class="r" id="fvtt"></td><td></td></tr></tfoot></table>
 </div>
 <div class="bf" id="fvf" hidden>
 <div class="bt"><div><span class="hn">Items you picked</span><b id="fvt">₹0</b></div><div class="r"><span class="hn">Your share</span><b class="ac2" id="fvv">₹0</b></div></div>
+<div class="owe" id="fvo" hidden><span id="fvol"></span><b id="fvov"></b></div>
 <div class="upl" id="fvu" hidden><span class="hn">UPI ID</span><b id="fvuv"></b><button type="button" id="fvuc" aria-label="Copy UPI ID"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2.5"/><path d="M15 9V6.5A2.5 2.5 0 0 0 12.5 4h-6A2.5 2.5 0 0 0 4 6.5v6A2.5 2.5 0 0 0 6.5 15H9"/></svg></button></div>
 <div class="sl2" id="fvs2" hidden style="margin-bottom:10px"><span class="slt" id="fvst"></span><button type="button" class="slh" id="fvsh" aria-label="Slide to pay on UPI. Or press Enter."><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 6l6 6-6 6M12 6l6 6-6 6"/></svg></button></div>
 <a class="btn alt" id="fvw" href="#" target="_blank" rel="noopener noreferrer" style="width:100%">Send my share on WhatsApp</a>
@@ -538,6 +546,11 @@ label.ck input.ck{margin:1px 0 0}
 <p class="hn" id="fvm" role="status" style="min-height:20px"></p>
 <p class="hn" style="margin:24px 0 40px;text-align:center">Made with <a href="#top" style="text-decoration:underline">Barabar</a>. Split your own bill in a minute.</p>
 </div></main>
+<div class="shb" id="pmb" hidden></div>
+<div class="sht" id="pms" role="dialog" aria-modal="true" aria-labelledby="pmt" hidden><button class="shx" id="pmx" type="button" aria-label="Close"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button><div class="shi" style="padding-top:28px">
+<h2 id="pmt" style="text-align:left;font-size:26px">Pay with</h2><p class="ss" id="pmd" style="margin:8px 0 18px"></p>
+<div class="pmg" id="pmg"></div><p class="hn" style="margin:14px 0 0">The app opens on your phone. Then send the amount to your friend using their UPI ID or phone number.</p>
+</div></div>
 <section id="app" hidden aria-label="Barabar app">
 <div class="al">
 <aside class="sd" id="sd" aria-label="App menu">
@@ -998,18 +1011,19 @@ function fvDraw(){var d=FV.d,lc=FV.nm.toLowerCase(),tb=$('fvb'),sub=0,tax=Number
 d.i.forEach(function(r){sub+=Number(r[1])});var f=sub>0?1+tax/sub:1,sel=0,sh=0,names=[];
 d.i.forEach(function(r,ix){var a=Number(r[1]),oth=r[2].filter(function(x){return String(x).toLowerCase()!==lc}).map(function(x){return String(x).slice(0,24)});
 var tr=document.createElement('tr'),n=document.createElement('td');n.className='inm';n.textContent=String(r[0]).slice(0,60);
-if(oth.length){var s=document.createElement('span');s.className='sb';s.textContent='Also: '+oth.slice(0,3).join(', ')+(oth.length>3?' +'+(oth.length-3):'');n.appendChild(s)}
+var sg=document.createElement('td'),pv=document.createElement('span');pv.className='pvf';var who=oth.slice();if(FV.sel[ix])who.push(FV.nm||'You');who.slice(0,3).forEach(function(q){var a2=document.createElement('span');a2.className='pa';a2.textContent=ini(q);a2.setAttribute('aria-hidden','true');pv.appendChild(a2)});if(who.length>3){var m2=document.createElement('span');m2.className='pa';m2.textContent='+'+(who.length-3);pv.appendChild(m2)}if(who.length)pv.setAttribute('aria-label','Shared by '+who.join(', '));sg.appendChild(pv);
 var am=document.createElement('td');am.className='r';am.textContent=money(a);
 var cb=document.createElement('td');cb.className='c';var ck=document.createElement('input');ck.type='checkbox';ck.className='ck';ck.checked=FV.sel[ix];ck.dataset.x=ix;ck.setAttribute('aria-label','I had '+r[0]);cb.appendChild(ck);
-tr.appendChild(n);tr.appendChild(am);tr.appendChild(cb);tb.appendChild(tr);
+tr.appendChild(n);tr.appendChild(sg);tr.appendChild(am);tr.appendChild(cb);tb.appendChild(tr);
 if(FV.sel[ix]){sel+=a;sh+=a/(oth.length+1)*f;names.push(String(r[0]).slice(0,60))}});
 $('fvx').hidden=!(tax>0);$('fvxv').textContent=money(tax);$('fvtt').textContent=money(sub+tax);
 sh=Math.round(sh*100)/100;$('fvt').textContent=money(sel);$('fvv').textContent=money(sh);
 var up=String(d.u||''),payee=cap(String(d.p||d.h||'your friend').slice(0,24)),sl=$('fvs2');FV.payUrl='';
 if(UP.test(up)){$('fvu').hidden=false;$('fvuv').textContent=up;if(sh>0){FV.payUrl='upi://pay?pa='+encodeURIComponent(up)+'&pn='+encodeURIComponent(payee)+'&am='+sh.toFixed(2)+'&cu=INR&tn='+encodeURIComponent(String(d.r||'Bill').slice(0,40));sl.hidden=false;$('fvst').textContent='Pay '+money(sh)+' to '+payee;fvSl.reset()}else sl.hidden=true}
-else{$('fvu').hidden=true;sl.hidden=true}
+else{$('fvu').hidden=true;if(sh>0){sl.hidden=false;$('fvst').textContent='Pay '+money(sh)+' to '+payee;fvSl.reset();FV.noUpi=true}else sl.hidden=true}
+FV.noUpi=!UP.test(up)&&sh>0;FV.sh=sh;FV.payee=payee;$('fvo').hidden=!(sh>0);$('fvol').textContent='You owe '+payee;$('fvov').textContent=money(sh);
 var w=$('fvw');w.href='https://wa.me/?text='+encodeURIComponent((FV.nm||'My')+(FV.nm?'’s':'')+' share for '+String(d.r||'the bill').slice(0,60)+': '+money(sh)+(names.length?' ('+names.join(', ')+')':'')+'. Sent with Barabar');
-$('fvm').textContent=UP.test(up)?(sh>0?'':'Tick the items you had to see what you owe.'):payee+' hasn’t added a UPI ID yet. Ask them for it to pay.'}
+$('fvm').textContent=UP.test(up)?(sh>0?'':'Tick the items you had to see what you owe.'):(sh>0?payee+' hasn’t added a UPI ID yet. Swipe to pick your payment app, then pay '+payee+' with their UPI ID or number.':'Tick the items you had to see what you owe.')}
 $('fvb').addEventListener('change',function(e){var c=e.target.closest('[data-x]');if(!c||!FV)return;FV.sel[+c.dataset.x]=c.checked;fvDraw();var n=document.querySelector('#fvb [data-x="'+c.dataset.x+'"]');if(n)n.focus({preventScroll:true})});
 $('hbl').addEventListener('click',function(){var f=$('blf');f.hidden=!f.hidden;if(!f.hidden)$('bli').focus()});
 $('blf').addEventListener('submit',function(e){e.preventDefault();var v=$('bli').value.trim(),m=/[?#&]b=([A-Za-z0-9_-]+)/.exec(v);if(!m){msg.textContent='That doesn’t look like a bill link. Please paste the whole link.';return}location.hash='#b='+m[1]});
@@ -1052,7 +1066,14 @@ if(/iPhone|iPad|iPod/i.test(ua))g='gpay://upi/pay?'+q;else if(/Android/i.test(ua
 try{location.href=g}catch(x){}
 if(g!==url&&/iPhone|iPad|iPod/i.test(ua))setTimeout(function(){if(!document.hidden){try{location.href=url}catch(x){}}},1600)}
 var bpSl=makeSlide($('bps'),$('bpsh'),function(){goPay(PAYURL,$('bpum'))});
-var fvSl=makeSlide($('fvs2'),$('fvsh'),function(){goPay(FV&&FV.payUrl,$('fvm'))});
+var fvSl=makeSlide($('fvs2'),$('fvsh'),function(){if(FV&&FV.payUrl)goPay(FV.payUrl,$('fvm'));else if(FV&&FV.noUpi)openPm()});
+
+var PMA=[['Google Pay','G','gpay://','com.google.android.apps.nbu.paisa.user'],['PhonePe','P','phonepe://','com.phonepe.app'],['Paytm','Pt','paytmmp://','net.one97.paytm'],['Navi','N','navi://','com.naviapp'],['BHIM','B','bhim://','in.org.npci.upiapp']];
+function pmLaunch(a){var ua=navigator.userAgent||'',u=a[2];if(/Android/i.test(ua))u='intent://upi/pay#Intent;scheme=upi;package='+a[3]+';end';try{location.href=u}catch(x){}}
+(function(){var g=$('pmg');PMA.forEach(function(a){var b=document.createElement('button');b.type='button';b.className='pmt';b.innerHTML='<span class="pmi" aria-hidden="true"></span><span class="pmn"></span>';b.querySelector('.pmi').textContent=a[1];b.querySelector('.pmn').textContent=a[0];b.addEventListener('click',function(){pmLaunch(a)});g.appendChild(b)})})();
+function openPm(){$('pmd').textContent='Pay '+money(FV.sh||0)+' to '+(FV.payee||'your friend')+'. Choose your UPI app.';$('pmb').hidden=false;$('pms').hidden=false;void $('pms').offsetWidth;$('pmb').classList.add('o');$('pms').classList.add('o')}
+function closePm(){if($('pms').hidden)return;$('pmb').classList.remove('o');$('pms').classList.remove('o');setTimeout(function(){$('pmb').hidden=true;$('pms').hidden=true},window.matchMedia('(prefers-reduced-motion: reduce)').matches?0:300)}
+$('pmx').addEventListener('click',closePm);$('pmb').addEventListener('click',closePm);document.addEventListener('keydown',function(e){if(e.key==='Escape')closePm()});
 $('fvuc').addEventListener('click',function(){copyTxt($('fvuv').textContent,$('fvm'))});
 
 var trips=[],tseq=0,TRIP=null,GRP=null,SOLO=null,BACKH=null;
