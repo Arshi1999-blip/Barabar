@@ -667,7 +667,7 @@ label.ck input.ck{margin:1px 0 0}
 <form class="pf" id="pplf" novalidate><label class="vh" for="pp">Add a friend at the table</label><input id="pp" type="text" maxlength="24" autocomplete="off" placeholder="Add a friend, e.g. Rahul"><button class="btn alt" type="button" id="shb">Share</button></form>
 <ul class="pl" id="pl" aria-label="People at the table"></ul>
 <div class="seq"><button class="btn alt" id="seq" type="button">Split equally</button><span class="hn" id="seqn" role="status"></span></div>
-<table class="it"><thead><tr><th scope="col">Item</th><th scope="col">Sharing</th><th scope="col" class="r">Amt</th><th scope="col" class="c"><input class="ck" id="sa" type="checkbox" aria-label="I had every item"></th></tr></thead><tbody id="ib"></tbody><tfoot><tr id="tx" hidden><td colspan="2">Tax &amp; charges</td><td class="r" id="txv"></td><td></td></tr><tr class="tot"><td colspan="2">Total bill</td><td class="r" id="ttv"></td><td></td></tr></tfoot></table>
+<table class="it"><thead><tr><th scope="col">Item</th><th scope="col" class="q">Qty</th><th scope="col">Sharing</th><th scope="col" class="r">Amt</th><th scope="col" class="c"><input class="ck" id="sa" type="checkbox" aria-label="I had every item"></th></tr></thead><tbody id="ib"></tbody><tfoot><tr id="tx" hidden><td colspan="3">Tax &amp; charges</td><td class="r" id="txv"></td><td></td></tr><tr class="tot"><td colspan="3">Total bill</td><td class="r" id="ttv"></td><td></td></tr></tfoot></table>
 <form class="pf ai" id="aif" novalidate><label class="vh" for="ain">Item name</label><input id="ain" type="text" maxlength="60" placeholder="Add an item" autocomplete="off"><label class="vh" for="aia">Amount</label><input id="aia" type="number" min="0" step="0.01" inputmode="decimal" placeholder="₹" autocomplete="off"><button class="btn alt" type="submit">Add item</button></form>
 <p class="er" id="aie"></p>
 </div></div>
@@ -933,14 +933,14 @@ $('rn').textContent=b.restaurant;$('rds').textContent=b.desc||'';$('rds').hidden
 var pl=$('pl');pl.textContent='';b.people.forEach(function(p){var li=document.createElement('li');li.textContent=p;if(p==='You')li.className='me';else{var x=document.createElement('button');x.type='button';x.textContent='×';x.setAttribute('aria-label','Remove '+p);x.dataset.rm=p;li.appendChild(x)}pl.appendChild(li)});
 var ib=$('ib');ib.textContent='';var all=b.items.length>0;
 b.items.forEach(function(it,ix){all=all&&it.p.indexOf('You')>=0;var tr=document.createElement('tr');
-var n=document.createElement('td');n.className='inm';n.textContent=it.n;
+var n=document.createElement('td');n.className='inm';var qs=/^\s*(\d{1,3})\s*[x×*#]\s*(.+)$/i.exec(it.n),qc=document.createElement('td');qc.className='q';qc.textContent=qs?qs[1]:'1';n.textContent=qs?qs[2]:it.n;
 var pp=document.createElement('td'),bt=document.createElement('button');bt.type='button';bt.className='pv2';bt.dataset.o=ix;bt.dataset.k='o'+ix;bt.setAttribute('aria-expanded',it.open);
 if(it.p.length){it.p.slice(0,3).forEach(function(q){var a=document.createElement('span');a.className='pa';a.textContent=ini(q);a.setAttribute('aria-hidden','true');bt.appendChild(a)});if(it.p.length>3){var m=document.createElement('span');m.className='pa';m.textContent='+'+(it.p.length-3);m.setAttribute('aria-hidden','true');bt.appendChild(m)}bt.setAttribute('aria-label',it.n+' shared by '+it.p.join(', ')+'. Change who shares it')}else{bt.textContent='+ Add';bt.setAttribute('aria-label','Choose who shares '+it.n)}
 pp.appendChild(bt);
 var am=document.createElement('td');am.className='r';am.textContent=money(it.a);
 var cb=document.createElement('td');cb.className='c';var ck=document.createElement('input');ck.type='checkbox';ck.className='ck';ck.dataset.c=ix;ck.dataset.k='c'+ix;ck.checked=it.p.indexOf('You')>=0;ck.setAttribute('aria-label','I had '+it.n);cb.appendChild(ck);
-tr.appendChild(n);tr.appendChild(pp);tr.appendChild(am);tr.appendChild(cb);ib.appendChild(tr);
-if(it.open){var ex=document.createElement('tr');ex.className='ex';var td=document.createElement('td');td.colSpan=4;var cs=document.createElement('div');cs.className='chs';cs.setAttribute('role','group');cs.setAttribute('aria-label','Who shares '+it.n);
+tr.appendChild(n);tr.appendChild(qc);tr.appendChild(pp);tr.appendChild(am);tr.appendChild(cb);ib.appendChild(tr);
+if(it.open){var ex=document.createElement('tr');ex.className='ex';var td=document.createElement('td');td.colSpan=5;var cs=document.createElement('div');cs.className='chs';cs.setAttribute('role','group');cs.setAttribute('aria-label','Who shares '+it.n);
 b.people.forEach(function(p){var c=document.createElement('button');c.type='button';c.className='chp';c.textContent=p;c.dataset.t=ix+'|'+p;c.setAttribute('aria-pressed',it.p.indexOf(p)>=0);cs.appendChild(c)});td.appendChild(cs);ex.appendChild(td);ib.appendChild(ex)}});
 var eq=!!b.eq&&b.items.length>0;$('seq').textContent=eq?'Clear split':'Split equally';$('sa').checked=all;$('sa').disabled=!b.items.length;
 $('tx').hidden=!(b.tax>0);$('txv').textContent=money(b.tax);$('ttv').textContent=money(calc(b).sub+b.tax);
@@ -1067,7 +1067,7 @@ function fvDraw(){var d=FV.d,lc=FV.nm.toLowerCase(),tb=$('fvb'),sub=0,tax=Number
 d.i.forEach(function(r){sub+=Number(r[1])});var f=sub>0?1+tax/sub:1,sel=0,sh=0,names=[];
 d.i.forEach(function(r,ix){var a=Number(r[1]),oth=r[2].filter(function(x){return String(x).toLowerCase()!==lc}).map(function(x){return String(x).slice(0,24)});
 if(FV.live)Object.keys(FV.live).forEach(function(nm){if(nm===lc)return;var sl=FV.live[nm];if(sl&&sl.indexOf(ix)>=0&&!oth.some(function(o){return o.toLowerCase()===nm}))oth.push(FV.liveN[nm]||nm)});
-var tr=document.createElement('tr'),n=document.createElement('td');n.className='inm';var qm=/^\s*(\d{1,3})\s*[x×]\s*(.+)$/i.exec(String(r[0])),qn=qm?qm[2]:String(r[0]),qt=document.createElement('td');qt.className='q';qt.textContent=qm?qm[1]:'1';n.textContent=qn.length>18?qn.slice(0,17).trim()+'…':qn;n.title=qn;
+var tr=document.createElement('tr'),n=document.createElement('td');n.className='inm';var qm=/^\s*(\d{1,3})\s*[x×*#]\s*(.+)$/i.exec(String(r[0])),qn=qm?qm[2]:String(r[0]),qt=document.createElement('td');qt.className='q';qt.textContent=qm?qm[1]:'1';n.textContent=qn.length>18?qn.slice(0,17).trim()+'…':qn;n.title=qn;
 var sg=document.createElement('td'),pv=document.createElement('span');pv.className='pvf';var who=oth.slice();if(FV.sel[ix])who.push(FV.nm||'You');who.slice(0,3).forEach(function(q){var a2=document.createElement('span');a2.className='pa';a2.textContent=ini(q);a2.setAttribute('aria-hidden','true');pv.appendChild(a2)});if(who.length>3){var m2=document.createElement('span');m2.className='pa';m2.textContent='+'+(who.length-3);pv.appendChild(m2)}if(who.length)pv.setAttribute('aria-label','Shared by '+who.join(', '));sg.appendChild(pv);
 var am=document.createElement('td');am.className='r';am.textContent=money(a);
 var cb=document.createElement('td');cb.className='c';var ck=document.createElement('input');ck.type='checkbox';ck.className='ck';ck.checked=FV.sel[ix];ck.dataset.x=ix;ck.setAttribute('aria-label','I had '+r[0]);cb.appendChild(ck);
