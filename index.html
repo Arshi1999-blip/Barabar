@@ -834,7 +834,7 @@ function bail(){clearTimeout(tm);return ocrRead(b,f).then(function(){if(why)b.ms
 return prep(f).then(function(bl){return new Promise(function(res,rej){var fr=new FileReader();fr.onload=function(){res(String(fr.result).split(',')[1])};fr.onerror=rej;fr.readAsDataURL(bl)})})
 .then(function(b64){return fetch(SCAN_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({image:b64,mime:'image/jpeg'}),signal:ctl?ctl.signal:undefined})})
 .then(function(r){return r.json().catch(function(){return{}}).then(function(d){if(!r.ok){why=(d&&d.error?d.error:'error')+' '+r.status+(d&&d.status?'/'+d.status:'')+(d&&d.detail?': '+String(d.detail).slice(0,120):'');throw 0}return d})})
-.then(function(d){clearTimeout(tm);if(!d||!Array.isArray(d.items)||!d.items.length){why='no items found';return bail()}applyRead(b,d)})
+.then(function(d){clearTimeout(tm);if(!d||!Array.isArray(d.items)||!d.items.length){why='no items found';return bail()}applyRead(b,d);if(b.status==='ready'&&d._ms){b.msg='Read in '+(d._ms/1000).toFixed(1)+'s ('+d._model+'). Please check the amounts.';fin(b)}})
 .catch(function(e){if(!why)why=e&&e.name==='AbortError'?'timed out':'network blocked';return bail()})}
 var TESS=null;
 function loadTess(){if(window.Tesseract)return Promise.resolve(window.Tesseract);if(TESS)return TESS;
