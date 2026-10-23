@@ -808,13 +808,13 @@ function claude_use(){if(sampleFn!==undefined)return Promise.resolve(sampleFn);
 return new Promise(function(res){var t=setTimeout(function(){sampleFn=null;res(null)},12000);
 try{window.claude.use('sample').then(function(s){clearTimeout(t);sampleFn=s||null;res(sampleFn)},function(){clearTimeout(t);sampleFn=null;res(null)})}catch(x){clearTimeout(t);sampleFn=null;res(null)}})}
 function prep(f){return new Promise(function(res,rej){var u=URL.createObjectURL(f),im=new Image();
-im.onload=function(){var m=1800,r=Math.min(1,m/Math.max(im.naturalWidth,im.naturalHeight)),c=document.createElement('canvas');c.width=Math.round(im.naturalWidth*r);c.height=Math.round(im.naturalHeight*r);
+im.onload=function(){var m=1500,r=Math.min(1,m/Math.max(im.naturalWidth,im.naturalHeight)),c=document.createElement('canvas');c.width=Math.round(im.naturalWidth*r);c.height=Math.round(im.naturalHeight*r);
 var x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);x.drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(u);c.toBlob(function(bl){bl?res(bl):rej()},'image/jpeg',.85)};
 im.onerror=function(){URL.revokeObjectURL(u);rej()};im.src=u})}
 var PROMPT='This is a photo of a restaurant or cafe bill. Read it and reply with only a JSON object of this shape: {"restaurant": string or null, "location": string or null, "items": [{"name": string, "amount": number}], "taxAndCharges": number}. "items" are the ordered food and drink lines; "amount" is the full line amount in rupees (quantity × price), as a plain number, and put the quantity in the name when it is more than 1 (e.g. "2 × Masala Chaas"). Never list a subtotal, tax, GST, service charge, discount, round-off or total as an item. "taxAndCharges" is all taxes and service charges added, minus any discounts, as a number (0 if none). If the photo is not a bill or nothing is readable, reply {"items": []}. Do not invent anything.';
 function fin(b){if(cur===b&&!app.hidden&&!$('bcard').closest('.pgv').hidden)renderBill();renderBills()}
 function extract(b,f){return claude_use().then(function(sm){
-if(!sm){return ocrRead(b,f)}
+if(!sm){return SCAN_URL?cloudRead(b,f):ocrRead(b,f)}
 return prep(f).then(function(bl){return sm.json(PROMPT,{images:bl,modelTier:'default'})}).then(function(d){
 var its=(d&&Array.isArray(d.items)?d.items:[]).filter(function(i){return i&&typeof i.name==='string'&&i.name.trim()&&isFinite(Number(i.amount))&&Number(i.amount)>0}).map(function(i){return{n:i.name.trim().slice(0,60),a:Math.round(Number(i.amount)*100)/100,p:[],open:false}});
 if(!its.length){b.status='manual';b.msg='I couldn’t find any items on that photo. Try a clearer, well-lit photo, or add the items yourself below.';fin(b);return}
@@ -822,6 +822,18 @@ b.items=its;b.status='ready';b.msg='';if(d.restaurant&&typeof d.restaurant==='st
 var tx=Number(d.taxAndCharges);b.tax=isFinite(tx)&&tx>0?Math.round(tx*100)/100:0;fin(b)})
 }).catch(function(e){b.status='manual';var c=e&&e.code;b.msg=c==='not_granted'?'Allow Claude to read this bill when asked, or add the items yourself below.':c==='rate_limited'?'Too many requests right now. Please try again in a little while, or add the items yourself below.':'I couldn’t read that bill. You can try another photo or add the items yourself below.';fin(b)})}
 
+
+var SCAN_URL='https://barabar-scan.arshi-arshad2013.workers.dev';/* paste your Cloudflare Worker address here, e.g. https://barabar-scan.yourname.workers.dev */
+function applyRead(b,d){
+var its=(d&&Array.isArray(d.items)?d.items:[]).filter(function(i){return i&&typeof i.name==='string'&&i.name.trim()&&isFinite(Number(i.amount))&&Number(i.amount)>0}).map(function(i){return{n:i.name.trim().slice(0,60),a:Math.round(Number(i.amount)*100)/100,p:[],open:false}});
+if(!its.length){b.status='manual';b.msg='I couldn’t find any items on that photo. Try a clearer, well-lit photo, or add the items yourself below.';fin(b);return}
+b.items=its;b.status='ready';b.msg='';if(d.restaurant&&typeof d.restaurant==='string')b.restaurant=d.restaurant.trim().slice(0,60);if(d.location&&typeof d.location==='string')b.loc=d.location.trim().slice(0,60);
+var tx=Number(d.taxAndCharges);b.tax=isFinite(tx)&&tx>0?Math.round(tx*100)/100:0;fin(b)}
+function cloudRead(b,f){var ctl=window.AbortController?new AbortController():null,tm=setTimeout(function(){ctl&&ctl.abort()},15000);
+return prep(f).then(function(bl){return new Promise(function(res,rej){var fr=new FileReader();fr.onload=function(){res(String(fr.result).split(',')[1])};fr.onerror=rej;fr.readAsDataURL(bl)})})
+.then(function(b64){return fetch(SCAN_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({image:b64,mime:'image/jpeg'}),signal:ctl?ctl.signal:undefined})})
+.then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(d){clearTimeout(tm);if(!d||!Array.isArray(d.items)||!d.items.length)return ocrRead(b,f);applyRead(b,d)})
+.catch(function(){clearTimeout(tm);return ocrRead(b,f)})}
 var TESS=null;
 function loadTess(){if(window.Tesseract)return Promise.resolve(window.Tesseract);if(TESS)return TESS;
 TESS=new Promise(function(res,rej){var sc=document.createElement('script');sc.src='https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js';sc.onload=function(){window.Tesseract?res(window.Tesseract):rej()};sc.onerror=function(){TESS=null;rej()};document.head.appendChild(sc)});return TESS}
