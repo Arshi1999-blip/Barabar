@@ -1121,21 +1121,22 @@ if(m.py&&m.py.n&&!b.pexp){var pn=String(m.py.n).trim().slice(0,24),np=isMeName(p
 if(b.payer!==np){b.payer=np;b.sum=false}if(np!=='You'&&m.py.u&&UP.test(m.py.u)){b.upis=b.upis||{};if(!b.upis[np.toLowerCase()])b.upis[np.toLowerCase()]=m.py.u}}
 return JSON.stringify([b.people,b.items.map(function(i){return i.p}),b.seen,b.payer,b.upis])!==before}
 function hostPoll(){var u=picksUrl();if(!u||!cur||!cur.key||document.hidden||!isLive(cur))return;var ae=document.activeElement;if(ae&&/INPUT|TEXTAREA/.test(ae.tagName)&&$('app').contains(ae))return;var b=cur,id=b.key;hostPost(b);fetch(u+'?id='+encodeURIComponent(id),{cache:'no-store'}).then(function(r){return r.ok?r.json():null}).then(function(m){if(!m||!m.p||cur!==b)return;if(applyPicks(b,m)){renderBill();if(!$('sht').hidden)renderSheet()}renderNotifs()}).catch(function(){})}
-function notifPoll(){var u=picksUrl();if(!u||!user||document.hidden)return;var list=bills.filter(function(b){return b.shared&&b.key&&b!==cur&&isLive(b)&&b.status!=='reading'}).slice(0,8);
+function notifPoll(){var u=picksUrl();if(!u||!user||document.hidden)return;var list=bills.filter(function(b){return isShared(b)&&b!==cur&&isLive(b)&&b.status!=='reading'}).slice(0,8);
 Promise.all(list.map(function(b){return fetch(u+'?id='+encodeURIComponent(b.key),{cache:'no-store'}).then(function(r){return r.ok?r.json():null}).then(function(m){if(m&&m.p)applyPicks(b,m)}).catch(function(){})})).then(renderNotifs)}
 var NT_OPEN=10*6e4,NT_PAY=30*6e4,NSEEN=null;
 function nDis(v){try{if(v===undefined)return JSON.parse(localStorage.getItem('bb_nd')||'[]');localStorage.setItem('bb_nd',JSON.stringify(v.slice(-200)))}catch(x){return []}}
 function ago(t){var m=Math.max(1,Math.round((Date.now()-t)/6e4));return m<60?m+' min ago':m<1440?Math.round(m/60)+' h ago':Math.round(m/1440)+' d ago'}
 function joinN(a){return a.length<=2?a.join(' and '):a.slice(0,2).join(', ')+' and '+(a.length-2)+' more'}
-function buildNotifs(){var out=[],now=Date.now();bills.forEach(function(b){if(!b.shared||!b.sharedAt||!isLive(b)||b.status==='reading'||!b.items.length)return;var c=calc(b),pay=b.payer||'',pl=pay.toLowerCase(),seen=b.seen||{},age=now-b.sharedAt;
+function isShared(b){return !!(b.key&&(b.shared||Object.keys(b.seen||{}).length||(b.people||[]).length>1))}
+function buildNotifs(){var out=[],now=Date.now();bills.forEach(function(b){if(!isShared(b)||!isLive(b)||b.status==='reading'||!b.items.length)return;var c=calc(b),pay=b.payer||'',pl=pay.toLowerCase(),seen=b.seen||{},st=b.sharedAt||b.ts||now,age=now-st;
 var others=b.people.filter(function(p){return p!=='You'&&p.toLowerCase()!==pl}),no=[],np=[],up=[],amt=0;
 others.forEach(function(p){var k=p.toLowerCase(),sh=c.sh[p]||0;if(!seen[k])no.push(p);else if(sh<=0)np.push(p);else if(pay&&!(b.paid||{})[k]){up.push(p);amt+=sh}});
-var base=(b.restaurant||b.name)+' · shared '+ago(b.sharedAt);
+var base=(b.restaurant||b.name)+' · shared '+ago(st);
 function add(t,names,title,extra){if(!names.length)return;out.push({id:b.key+':'+t+':'+names.join('|'),b:b,t:t,names:names,title:title,sub:base,extra:extra})}
 if(age>=NT_OPEN)add('o',no,joinN(no)+(no.length===1?' hasn’t':' haven’t')+' opened the link');
 if(age>=NT_OPEN)add('p',np,joinN(np)+(np.length===1?' opened':' opened')+' the link but '+(np.length===1?'hasn’t':'haven’t')+' picked items');
 if(age>=NT_PAY)add('u',up,joinN(up)+(up.length===1?' still owes ':' still owe ')+money(Math.round(amt*100)/100)+(pay==='You'?' to you':' to '+pay),amt)});
-var d=nDis();return out.filter(function(n){return d.indexOf(n.id)<0}).sort(function(a,b){return b.b.sharedAt-a.b.sharedAt})}
+var d=nDis();return out.filter(function(n){return d.indexOf(n.id)<0}).sort(function(a,b){return (b.b.sharedAt||b.b.ts||0)-(a.b.sharedAt||a.b.ts||0)})}
 function nText(n){var b=n.b,keep=cur;cur=b;var l;try{l=buildLink('')}finally{cur=keep}var r=b.restaurant||'the bill';
 return n.t==='u'?'Hey! Quick reminder about the bill from '+r+'. Your share is still pending'+(b.payer&&b.payer!=='You'?' for '+b.payer:'')+'. Open the link, tick your items and pay: '+l:'Hey! Here’s the bill from '+r+'. Tick the items you had so we can split it: '+l}
 function renderNotifs(){if(!user)return;var list=buildNotifs(),ul=$('nl');if(!ul)return;ul.textContent='';$('nem').hidden=list.length>0;
