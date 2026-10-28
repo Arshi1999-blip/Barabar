@@ -676,10 +676,10 @@ li.jn2{list-style:none;font-size:13px;color:var(--mu);margin:0 0 2px;padding:0 2
 </form>
 <section class="pc" id="syc" hidden style="margin-top:20px">
 <h2 style="font-size:18px;margin:0 0 4px">Sync across devices</h2>
-<p class="ss" style="font-size:14px;margin:0 0 12px">Your bills from the last 30 days are backed up. To see them on another phone or laptop, log in there and enter this code under Profile.</p>
+<p class="ss" id="syd" style="font-size:14px;margin:0 0 12px">Your bills from the last 30 days are backed up. To see them on another phone or laptop, log in there and enter this code under Profile.</p>
 <div class="bn" id="syco" style="font-size:20px;letter-spacing:.06em;font-variant-numeric:tabular-nums;margin-bottom:8px" aria-label="Your sync code">…</div>
 <button class="lk" type="button" id="syl">Copy code</button>
-<form id="syf" novalidate style="margin-top:16px"><label class="fi"><span>Have a code from another device?</span><input id="syi" type="text" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="ABCD-EFGH-JKLM-NPQR"></label><button class="btn" type="submit">Link this device</button></form>
+<form id="syf" novalidate style="margin-top:16px"><label class="fi"><span id="syfl">Have a code from another device?</span><input id="syi" type="text" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="ABCD-EFGH-JKLM-NPQR"></label><button class="btn" type="submit">Link this device</button></form>
 <p class="hn" id="sym" role="status" style="min-height:20px"></p>
 <p class="hn" id="sys"></p>
 </section>
@@ -849,7 +849,16 @@ refreshCta()}
 window.addEventListener('hashchange',route);
 function openSignup(){try{location.hash=user?'#app':'#signup'}catch(x){}route()}
 fm.addEventListener('submit',function(e){e.preventDefault();var v=em.value.trim();if(v&&!EM.test(v)){msg.textContent='Please enter a valid email address.';em.focus();return}msg.textContent='Friends don’t need to install anything or sign up.';if(v)$('f-email').value=v;openSignup()});
-$('gb').addEventListener('click',function(){$('gm').textContent='Google sign-in isn’t connected in this preview yet. Please use the form below.'});
+var GOOGLE_ID='108148838791-abh1aaagptlegno46nokd0o0rcfrjpra.apps.googleusercontent.com',GC=null;
+function gReady(){return !!(window.google&&google.accounts&&google.accounts.oauth2)}
+function gLoad(){if(gReady()||document.getElementById('gsi'))return;var sc=document.createElement('script');sc.id='gsi';sc.src='https://accounts.google.com/gsi/client';sc.async=true;document.head.appendChild(sc)}
+setTimeout(function(){if(!user)gLoad()},400);
+function gDone(r){var m=$('gm');if(!r||r.error||!r.access_token){m.textContent='Google sign-in didn’t finish. Please try again.';return}
+m.textContent='Signing you in…';fetch(SCAN_URL.replace(/\/$/,'')+'/auth/google',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token:r.access_token})}).then(function(x){if(!x.ok)throw new Error('auth');return x.json()}).then(function(o){
+if(!o.email||!/^[a-f0-9]{64}$/.test(o.sk||''))throw new Error('bad');var em=String(o.email).toLowerCase(),nm=names(),pv=nm[em];if(typeof pv==='string')pv={name:pv};
+var u={name:(pv&&pv.name)||o.name||nameFromEmail(em),email:em,upi:(pv&&pv.upi)||''};nm[em]=u;store('barabar:names',JSON.stringify(nm));user=u;saveUser();store('barabar:sk:'+em,o.sk);loadBills();syncStart();m.textContent='';location.hash='#app';route()}).catch(function(){m.textContent='Couldn’t complete Google sign-in. Please try again, or use the form below.'})}
+$('gb').addEventListener('click',function(){var m=$('gm');if(!gReady()){gLoad();m.textContent='Google sign-in is still loading. Tap again in a moment.';return}m.textContent='';
+if(!GC)GC=google.accounts.oauth2.initTokenClient({client_id:GOOGLE_ID,scope:'openid email profile',callback:gDone,error_callback:function(){$('gm').textContent='Google sign-in was closed. Please try again.'}});GC.requestAccessToken({prompt:'select_account'})});
 ['name','email','upi'].forEach(function(k){F[k].addEventListener('input',function(){if(F[k].getAttribute('aria-invalid')==='true')check(k)});F[k].addEventListener('blur',function(){if(F[k].value.trim())check(k)})});
 F.terms.addEventListener('change',function(){if(F.terms.getAttribute('aria-invalid')==='true')check('terms')});
 $('swt').addEventListener('click',function(e){var b=e.target.closest('.lk');if(b)setMode(b.dataset.m)});
@@ -1268,7 +1277,7 @@ window.addEventListener('hashchange',function(){closeSheet(false)});
 $('upl').addEventListener('click',function(){$('fupl').click()});
 $('fscan').addEventListener('change',function(){var f=this.files[0];this.value='';if(rOpen())rProcess(f);else addBill(f,'scan')});
 $('fupl').addEventListener('change',function(){addBill(this.files[0],'upload');this.value=''});
-function logout(){persist();SYNC.k='';SYNC.code='';user=null;store('barabar:user',null);bills=[];renderBills();$('bm').textContent='';closeDrawer(false);location.hash='#top';route()}
+function logout(){persist();SYNC.k='';SYNC.code='';SYNC.acct=0;user=null;store('barabar:user',null);bills=[];renderBills();$('bm').textContent='';closeDrawer(false);location.hash='#top';route()}
 $('lo').addEventListener('click',logout);$('lo2').addEventListener('click',logout);
 var clr=$('clr'),ct;
 clr.addEventListener('click',function(){if(clr.dataset.c!=='1'){clr.dataset.c='1';clr.textContent='Tap again to confirm';ct=setTimeout(function(){clr.dataset.c='';clr.textContent='Clear data'},4000);return}
@@ -1296,14 +1305,14 @@ function loadBills(){var k=bkey();if(!k)return;try{var o=JSON.parse(store(k)||'n
 var old=o.bills.filter(function(b){return b&&b.ts>cut&&Array.isArray(b.items)&&!have[b.id]});old.forEach(function(b){b.url=null;b.restored=true;b.people=b.people||['You'];b.items.forEach(function(i){i.p=i.p||[]})});
 bills=bills.concat(old).sort(function(a,b){return (b.ts||0)-(a.ts||0)});if(Array.isArray(o.trips)&&!trips.length){trips=o.trips;tseq=Math.max(tseq,o.tseq||0)}seq=Math.max(seq,o.seq||0);renderBills();if(typeof renderTrips==='function')renderTrips()}catch(x){}}
 
-var SYNC={code:'',k:'',busy:false,last:'',err:''},SYA='0123456789ABCDEFGHJKMNPQRSTVWXYZ';
+var SYNC={code:'',k:'',busy:false,last:'',err:'',acct:0},SYA='0123456789ABCDEFGHJKMNPQRSTVWXYZ';
 function syncUrl(){return SCAN_URL?SCAN_URL.replace(/\/$/,'')+'/sync':''}
 function syncDel(v){var k=user&&user.email?'barabar:del:'+String(user.email).toLowerCase():'';if(!k)return {};if(v===undefined){try{return JSON.parse(store(k)||'{}')||{}}catch(x){return {}}}var c=Date.now()-36*864e5;Object.keys(v).forEach(function(x){if(v[x]<c)delete v[x]});store(k,JSON.stringify(v));return v}
 function syncFmt(c){return c.replace(/(.{4})(?=.)/g,'$1-')}
 function syncNorm(v){return String(v||'').toUpperCase().replace(/O/g,'0').replace(/[IL]/g,'1').replace(/U/g,'V').replace(/[^0-9A-Z]/g,'')}
 function syncHash(c){if(!(window.crypto&&crypto.subtle))return Promise.reject(new Error('nocrypto'));return crypto.subtle.digest('SHA-256',new TextEncoder().encode('barabar:'+c)).then(function(h){return [].map.call(new Uint8Array(h),function(x){return ('0'+x.toString(16)).slice(-2)}).join('')})}
 function syncSet(c){SYNC.code=c;SYNC.k='';SYNC.last='';return syncHash(c).then(function(k){SYNC.k=k;showSync()})}
-function syncStart(){if(!user||!user.email||!syncUrl()){showSync();return}var ek='barabar:sync:'+String(user.email).toLowerCase(),c=store(ek);
+function syncStart(){SYNC.acct=0;if(!user||!user.email||!syncUrl()){showSync();return}var sk=store('barabar:sk:'+String(user.email).toLowerCase());if(/^[a-f0-9]{64}$/.test(sk||'')){SYNC.acct=1;SYNC.code='';SYNC.k=sk;SYNC.last='';showSync();syncNow();return}var ek='barabar:sync:'+String(user.email).toLowerCase(),c=store(ek);
 if(!c||!/^[0-9A-Z]{16}$/.test(c)){var a=new Uint8Array(16);try{crypto.getRandomValues(a)}catch(x){return}c=[].map.call(a,function(n){return SYA[n%32]}).join('');store(ek,c)}
 syncSet(c).then(function(){syncNow()}).catch(function(){})}
 function syncMerge(rm){var cut=Date.now()-KEEP_MS,del=syncDel(),ch=false,map={};Object.keys(rm&&rm.del||{}).forEach(function(k){if(!(del[k]>=rm.del[k]))del[k]=rm.del[k]});syncDel(del);
@@ -1317,11 +1326,11 @@ if(ch){bills.sort(function(a,b){return (b.ts||0)-(a.ts||0)});try{refreshLists()}
 function syncNow(){var u=syncUrl();if(!u||!SYNC.k||!user||SYNC.busy||document.hidden)return Promise.resolve();SYNC.busy=true;var k=SYNC.k;
 return fetch(u+'?k='+k,{cache:'no-store'}).then(function(r){if(!r.ok)throw new Error('http');return r.json()}).then(function(o){if(k!==SYNC.k)return;syncMerge(o.d);persist();var data={bills:LASTKEEP,del:syncDel()},j=JSON.stringify(data);SYNC.err='';
 if(j===SYNC.last)return;return fetch(u,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({k:k,data:data})}).then(function(r){if(r.ok)SYNC.last=j;else SYNC.err='save'})}).catch(function(){SYNC.err='net'}).then(function(){SYNC.busy=false;showSync()})}
-function showSync(){var c=$('syco');if(!c)return;var on=!!(SYNC.code&&syncUrl());$('syc').hidden=!(user&&user.email&&syncUrl());c.textContent=on?syncFmt(SYNC.code):'…';$('sys').textContent=SYNC.err?'Couldn’t sync just now. Will retry.':(on?'Backed up. Last 30 days of bills sync across your devices.':'')}
+function showSync(){var c=$('syco');if(!c)return;var ac=!!SYNC.acct,on=!!(SYNC.code&&syncUrl());$('syc').hidden=!(user&&user.email&&syncUrl());c.hidden=ac;$('syl').hidden=ac;$('syd').textContent=ac?'You’re signed in with Google. Your last 30 days of bills sync automatically on every device you sign in on.':'Your bills from the last 30 days are backed up. To see them on another phone or laptop, log in there and enter this code under Profile. Or sign in with Google to skip the code.';$('syfl').textContent=ac?'Have an old sync code? Add those bills here.':'Have a code from another device?';c.textContent=on?syncFmt(SYNC.code):'…';$('sys').textContent=SYNC.err?'Couldn’t sync just now. Will retry.':((on||ac)?'Backed up. Last 30 days of bills sync across your devices.':'')}
 $('syl').addEventListener('click',function(){if(!SYNC.code)return;var t=syncFmt(SYNC.code),m=$('sym');var ok=function(){m.textContent='Code copied.'};if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(t).then(ok,function(){m.textContent='Select the code and copy it.'});else m.textContent='Select the code and copy it.'});
 $('syf').addEventListener('submit',function(e){e.preventDefault();var m=$('sym'),c=syncNorm($('syi').value);if(c.length!==16){m.textContent='A code has 16 letters and numbers, like ABCD-EFGH-JKLM-NPQR.';return}
 var u=syncUrl();m.textContent='Checking…';syncHash(c).then(function(k){return fetch(u+'?k='+k,{cache:'no-store'}).then(function(r){if(!r.ok)throw new Error('http');return r.json()}).then(function(o){if(!o.d){m.textContent='No bills found for that code. Check it and try again.';return}
-store('barabar:sync:'+String(user.email).toLowerCase(),c);SYNC.code=c;SYNC.k=k;SYNC.last='';syncMerge(o.d);persist();$('syi').value='';m.textContent='Linked. Your bills are now in sync.';SYNC.busy=false;syncNow()})}).catch(function(){m.textContent='Couldn’t reach the server. Try again.'})});
+if(!SYNC.acct){store('barabar:sync:'+String(user.email).toLowerCase(),c);SYNC.code=c;SYNC.k=k}SYNC.last='';syncMerge(o.d);persist();$('syi').value='';m.textContent=SYNC.acct?'Done. Those bills were added to your account.':'Linked. Your bills are now in sync.';SYNC.busy=false;syncNow()})}).catch(function(){m.textContent='Couldn’t reach the server. Try again.'})});
 setInterval(function(){if(!document.hidden&&user)syncNow()},15000);document.addEventListener('visibilitychange',function(){if(!document.hidden&&user)syncNow()});
 setInterval(persist,2500);document.addEventListener('visibilitychange',function(){if(document.hidden)persist()});window.addEventListener('pagehide',persist);
 loadBills();syncStart();
