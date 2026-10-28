@@ -1133,7 +1133,7 @@ if(meP)sh=0;
 if(UP.test(up)){$('fvu').hidden=false;$('fvuv').textContent=up;if(sh>0){FV.payUrl='upi://pay?pa='+encodeURIComponent(up)+'&pn='+encodeURIComponent(payee)+'&am='+sh.toFixed(2)+'&cu=INR&tn='+encodeURIComponent(String(d.r||'Bill').slice(0,40));sl.hidden=false;$('fvst').textContent='Pay '+money(sh)+' to '+payee;fvSl.reset()}else sl.hidden=true}
 else{$('fvu').hidden=true;if(sh>0){sl.hidden=false;$('fvst').textContent='Pay '+money(sh)+' to '+payee;fvSl.reset();FV.noUpi=true}else sl.hidden=true}
 FV.noUpi=!UP.test(up)&&sh>0;FV.sh=sh;FV.payee=payee;$('fvo').hidden=!(sh>0);$('fvol').textContent='You owe '+payee;$('fvov').textContent=money(sh);
-var w=$('fvw');w.href='https://wa.me/?text='+encodeURIComponent((FV.nm||'My')+(FV.nm?'’s':'')+' share for '+String(d.r||'the bill').slice(0,60)+': '+money(sh)+(names.length?' ('+names.join(', ')+')':'')+'. Sent with Barabar');
+var w=$('fvw');w.href='https://api.whatsapp.com/send?text='+encodeURIComponent((FV.nm||'My')+(FV.nm?'’s':'')+' share for '+String(d.r||'the bill').slice(0,60)+': '+money(sh)+(names.length?' ('+names.join(', ')+')':'')+'. Sent with Barabar');
 $('fvm').textContent=UP.test(up)?(sh>0?'':'Tick the items you had to see what you owe.'):(sh>0?payee+' hasn’t added a UPI ID yet. Swipe to pick your payment app, then pay '+payee+' with their UPI ID or number.':'Tick the items you had to see what you owe.')}
 $('fvrest').addEventListener('change',function(){if(!FV)return;var v=this.checked;FV.sel=FV.sel.map(function(){return v});FV.touched=true;fvPost();fvDraw()});
 $('fvb').addEventListener('change',function(e){var c=e.target.closest('[data-x]');if(!c||!FV)return;FV.sel[+c.dataset.x]=c.checked;FV.touched=true;fvPost();fvDraw();var n=document.querySelector('#fvb [data-x="'+c.dataset.x+'"]');if(n)n.focus({preventScroll:true})});
@@ -1232,7 +1232,7 @@ window.addEventListener('hashchange',function(){if(rOpen())rClose(false)});
 var PAL=['#dfe6f7','#fbd9e8','#d9f0dc','#fde8c8','#e4dcf5','#d3eef2'],shTrig=null,WA='<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a9 9 0 0 0-7.7 13.6L3 21l4.6-1.2A9 9 0 1 0 12 3z"/><path d="M9.3 8.3c-.4.9-.2 2.4 1.6 4.2 1.8 1.8 3.3 2 4.2 1.6l.7-1.2-2-1-.8.7c-.8-.3-1.6-1.1-1.9-1.9l.7-.8-1-2z" fill="currentColor" stroke-width="1"/></svg>';
 function phones(){try{return JSON.parse(store('barabar:phones')||'{}')}catch(x){return {}}}
 function sheetOpen(){return !$('sht').hidden}
-function waLink(phone,text){return 'https://wa.me/'+(phone||'')+'?text='+encodeURIComponent(text)}
+function waLink(phone,text){return phone?'https://wa.me/'+phone+'?text='+encodeURIComponent(text):'https://api.whatsapp.com/send?text='+encodeURIComponent(text)}
 function fullText(){var b=cur,c=calc(b),L=[b.restaurant+' — who owes what','Bill total: '+money(c.sub+b.tax)];b.people.forEach(function(p){L.push(p+': '+money(c.sh[p]||0))});if(c.un>0)L.push('Unclaimed items: '+money(c.un));L.push('Split with Barabar');return L.join('\n')}
 function friendText(p){return 'Hi '+p+'! Here’s the bill from '+cur.restaurant+'. Tick the items you had and pay your share on UPI: '+buildLink(p)}
 function genText(){return 'Here’s the bill from '+cur.restaurant+'. Tick the items you had and pay your share: '+buildLink('')}
