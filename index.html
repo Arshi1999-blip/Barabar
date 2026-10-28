@@ -750,7 +750,7 @@ label.ck input.ck{margin:1px 0 0}
 <div class="slk"><span id="slk" class="bn"></span><button type="button" id="scp" aria-label="Copy link"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2.5"/><path d="M15 9V6.5A2.5 2.5 0 0 0 12.5 4h-6A2.5 2.5 0 0 0 4 6.5v6A2.5 2.5 0 0 0 6.5 15H9"/></svg></button></div>
 <p class="hn" id="scm" role="status" style="margin:6px 0 0;min-height:18px"></p>
 <h3>Share to friends</h3>
-<ul class="fg" id="fg"></ul>
+<ul class="fg" id="fg"></ul><p class="hn" id="shw" style="margin:4px 0 0;text-align:left">Send the link to anyone on WhatsApp. They appear here, and on the bill, as soon as they open it and enter their name.</p>
 
 <button class="btn" id="ssend" type="button" style="width:100%;margin-top:22px">Send</button>
 </div>
@@ -1070,7 +1070,7 @@ var HPT=null;
 function hostPoll(){var u=picksUrl();if(!u||!cur||!cur.key||document.hidden)return;var ae=document.activeElement;if(ae&&/INPUT|TEXTAREA/.test(ae.tagName)&&$('app').contains(ae))return;var b=cur,id=b.key;fetch(u+'?id='+encodeURIComponent(id),{cache:'no-store'}).then(function(r){return r.ok?r.json():null}).then(function(m){if(!m||!m.p||cur!==b)return;var before=JSON.stringify([b.people,b.items.map(function(i){return i.p})]);
 Object.keys(m.p).forEach(function(k){var e=m.p[k];if(!e||!Array.isArray(e.s))return;var nm=String(e.n||k).trim().slice(0,24);if(!nm)return;var ex=b.people.filter(function(p){return p.toLowerCase()===nm.toLowerCase()})[0];if(!ex){b.people.push(nm);ex=nm;b.sum=false}
 b.items.forEach(function(it,ix){var has=it.p.indexOf(ex)>=0,want=e.s.indexOf(ix)>=0;if(want&&!has)it.p.push(ex);else if(!want&&has)it.p=it.p.filter(function(x){return x!==ex})})});
-if(JSON.stringify([b.people,b.items.map(function(i){return i.p})])!==before)renderBill()}).catch(function(){})}
+if(JSON.stringify([b.people,b.items.map(function(i){return i.p})])!==before){renderBill();if(!$('sht').hidden)renderSheet()}}).catch(function(){})}
 setInterval(function(){if(!$('app').hidden)hostPoll()},4000);
 var FV=null,FVT=null,FVP=null,FVPOST=null;
 function picksUrl(){return SCAN_URL?SCAN_URL.replace(/\/$/,'')+'/picks':''}
@@ -1082,7 +1082,7 @@ FV.pl=pl;d=FV.d;var host=String(d.h||'Your friend').slice(0,24);
 $('fvh').innerHTML='';$('fvh').appendChild(document.createTextNode(FV.nm?'Hi ':'Pick your '));var sp=document.createElement('span');sp.className='ac';sp.textContent=FV.nm||'items';$('fvh').appendChild(sp);
 $('fvs').textContent=host+' shared this bill. Tick the items you had'+(d.p?', then pay '+cap(String(d.p).slice(0,24))+' your share.':', then pay your share.');
 $('fvr').textContent=String(d.r||'Your bill').slice(0,60);$('fvi').textContent=ini(d.r||'B')||'B';$('fvl').textContent=String(d.l||'').slice(0,60);
-$('fvn').hidden=!!FV.nm;$('fvrl').hidden=!FV.nm;$('fvrest').checked=FV.sel.length>0&&FV.sel.every(Boolean);var pdn=String(d.p||'').trim().slice(0,24);$('fvpd').hidden=false;$('fvpb').textContent=pdn?'Paid this bill? Open it as '+cap(pdn):'I paid this bill';fvDraw();fvLive();if(FV.nm&&!FV.posted){FV.posted=1;fvPost()}}
+$('fvn').hidden=!!FV.nm;if(!FV.nm&&!$('fvni').value&&user&&user.name)$('fvni').value=first(user.name).slice(0,24);$('fvrl').hidden=!FV.nm;$('fvrest').checked=FV.sel.length>0&&FV.sel.every(Boolean);var pdn=String(d.p||'').trim().slice(0,24);$('fvpd').hidden=false;$('fvpb').textContent=pdn?'Paid this bill? Open it as '+cap(pdn):'I paid this bill';fvDraw();fvLive();if(FV.nm&&!FV.posted){FV.posted=1;fvPost()}}
 $('fvn').addEventListener('submit',function(e){e.preventDefault();var v=$('fvni').value.trim().slice(0,24);if(!v||!FV)return;try{localStorage.setItem('bb_fn',v)}catch(x){}FV.nm=v;renderFriend(FV.pl);fvPost()});
 function fvLive(){var u=picksUrl();if(!u||!FV||!FV.d.k||FVT)return;FVT=setInterval(fvPoll,4000);fvPoll()}
 function fvPoll(){if(document.hidden||$('fv').hidden||!FV)return;var u=picksUrl()+'?id='+encodeURIComponent(FV.d.k);fetch(u,{cache:'no-store'}).then(function(r){if(!r.ok){FV.lerr=1;$('fvlv').hidden=false;return null}FV.lerr=0;$('fvlv').hidden=true;return r.json()}).then(function(m){if(!m||!m.p||!FV)return;var lv={},ln={};Object.keys(m.p).forEach(function(k){var e=m.p[k];if(e&&Array.isArray(e.s)){lv[k.toLowerCase()]=e.s;ln[k.toLowerCase()]=e.n||k}});var me=FV.nm.toLowerCase();if(me&&lv[me]&&!FV.touched){FV.sel=FV.d.i.map(function(r,ix){return lv[me].indexOf(ix)>=0});FV.touched=true}var j=JSON.stringify([lv,FV.sel]);if(j!==FV.lj){FV.lj=j;FV.live=lv;FV.liveN=ln;fvDraw()}}).catch(function(){if(FV){$('fvlv').hidden=false}})}
