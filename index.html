@@ -470,6 +470,9 @@ label.ck input.ck{margin:1px 0 0}
 #bpbf .tl3{padding-top:12px}
 .rst{margin:10px 0 6px;padding:14px;border:1px solid var(--ln);border-radius:20px;background:#fff}.rst .seq .btn{height:40px;padding:0 18px}
 .fvr{display:flex;align-items:flex-start;gap:12px;margin:14px 0 0;padding:14px 16px;border:1px solid var(--ln);border-radius:20px;background:#f6f6f7;cursor:pointer}.fvr[hidden]{display:none}.fvr b{display:block;font-size:15px}.fvr small{display:block;margin-top:2px;font-size:13px;color:var(--mu);line-height:1.4}.fvr input.ck{flex:none;margin-top:2px}
+.unc{margin:6px 0 10px;padding:10px 14px;border-radius:14px;background:#fff6e8;color:#8a5200;font-size:14px;line-height:1.4}
+.bi .st2{flex:1 1 100%;display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:13px;color:var(--mu)}.st2 a{color:var(--ink);font-weight:600;font-size:14px;text-decoration:underline;text-underline-offset:3px;white-space:nowrap}.bi.wp{flex-wrap:wrap}
+li.jn2{list-style:none;font-size:13px;color:var(--mu);margin:0 0 2px;padding:0 2px}
 </style>
 </head>
 <body>
@@ -682,6 +685,7 @@ label.ck input.ck{margin:1px 0 0}
 <div id="rbody">
 <form class="pf" id="pplf" novalidate><label class="vh" for="pp">Add a friend at the table</label><input id="pp" type="text" maxlength="24" autocomplete="off" placeholder="Add a friend, e.g. Rahul"><button class="btn alt" type="button" id="shb">Share</button></form>
 <ul class="pl" id="pl" aria-label="People at the table"></ul>
+<p class="unc" id="unc" hidden></p>
 <div class="seq"><button class="btn alt" id="seq" type="button">Split equally</button><button class="btn alt" id="srt" type="button" aria-expanded="false" aria-controls="rst">Add people to every item</button><span class="hn" id="seqn" role="status"></span></div>
 <div class="rst" id="rst" hidden><p class="hn" style="margin:0 0 8px">Who had everything? They’ll be added to every item. Anyone already on an item stays.</p><div class="chs" id="rstc" role="group" aria-label="People splitting the rest"></div><div class="seq" style="margin-top:12px"><button class="btn" id="rsa" type="button">Apply</button><button class="btn alt" id="rsx" type="button">Cancel</button><span class="hn" id="rsn" role="status"></span></div></div>
 <table class="it"><thead><tr><th scope="col">Item</th><th scope="col" class="q">Qty</th><th scope="col">Sharing</th><th scope="col" class="r">Amt</th><th scope="col" class="c"><input class="ck" id="sa" type="checkbox" aria-label="I had every item"></th></tr></thead><tbody id="ib"></tbody><tfoot><tr id="tx" hidden><td colspan="3">Tax &amp; charges</td><td class="r" id="txv"></td><td></td></tr><tr class="tot"><td colspan="3">Total bill</td><td class="r" id="ttv"></td><td></td></tr></tfoot></table>
@@ -808,6 +812,7 @@ $('sbtn').textContent=lg?'Log in':'Create account';
 $('swt').innerHTML=lg?'New to Barabar? <button type="button" class="lk" data-m="signup">Create an account</button>':'Already have an account? <button type="button" class="lk" data-m="login">Log in</button>';
 ['name','email','upi','terms'].forEach(function(k){err(k,'')});$('gm').textContent=''}
 function route(){var h=location.hash,s=(h==='#signup'||h==='#login'),m=/^#app(?:\/([a-z]+)(?:\/(\w+))?)?$/.exec(h),a=!!m,view=a?(m[1]||'home'):'',bid=a?m[2]:'';
+if(h.indexOf('#s=')===0){home.hidden=true;su.hidden=true;app.hidden=true;$('fv').hidden=false;document.title='Shared bill · Barabar';window.scrollTo(0,0);loadShort(h.slice(3));return}
 if(h.indexOf('#b=')===0){home.hidden=true;su.hidden=true;app.hidden=true;$('fv').hidden=false;document.title='Shared bill · Barabar';window.scrollTo(0,0);renderFriend(h.slice(3));return}
 $('fv').hidden=true;
 if(a&&VIEWS.indexOf(view)<0)view='home';
@@ -960,7 +965,7 @@ tr.appendChild(n);tr.appendChild(qc);tr.appendChild(pp);tr.appendChild(am);tr.ap
 if(it.open){var ex=document.createElement('tr');ex.className='ex';var td=document.createElement('td');td.colSpan=5;var cs=document.createElement('div');cs.className='chs';cs.setAttribute('role','group');cs.setAttribute('aria-label','Who shares '+it.n);
 b.people.forEach(function(p){var c=document.createElement('button');c.type='button';c.className='chp';c.textContent=p;c.dataset.t=ix+'|'+p;c.setAttribute('aria-pressed',it.p.indexOf(p)>=0);cs.appendChild(c)});td.appendChild(cs);ex.appendChild(td);ib.appendChild(ex)}});
 var eq=!!b.eq&&b.items.length>0;$('seq').textContent=eq?'Clear split':'Split equally';$('sa').checked=all;$('sa').disabled=!b.items.length;
-$('tx').hidden=!(b.tax>0);$('txv').textContent=money(b.tax);$('ttv').textContent=money(calc(b).sub+b.tax);
+$('tx').hidden=!(b.tax>0);$('txv').textContent=money(b.tax);$('ttv').textContent=money(calc(b).sub+b.tax);var un0=calc(b).un;$('unc').hidden=!(un0>0&&b.items.length&&b.people.length>1);$('unc').textContent=money(un0)+' isn’t claimed yet, so the split isn’t final.';
 var c=calc(b),ns=b.items.filter(function(i){return i.p.indexOf('You')>=0}).length;
 
 renderPay(b);
@@ -972,9 +977,17 @@ var chips=b.people.filter(function(p){return p!=='You'});if(pay&&chips.indexOf(p
 pc.hidden=!pay;if(pay){var u=document.createElement('ul');u.className='pl';u.style.margin='0';var li=document.createElement('li');li.textContent=dn(pay);var x=document.createElement('button');x.type='button';x.textContent='×';x.setAttribute('aria-label','Remove '+dn(pay));x.dataset.rmp='1';li.appendChild(x);u.appendChild(li);pc.appendChild(u)}
 if(!pay){$('bpn').textContent='Type who paid the bill to see who owes whom.';ui.disabled=true;ui.value='';ui.placeholder='Enter who paid first';$('bpcp').disabled=true;$('bpul').textContent='UPI ID of who paid';return}
 ui.disabled=false;$('bpcp').disabled=false;var rows=0;
-function row(txt,amt,me,nm){var li=document.createElement('li');li.className='bi'+(me?' me':'');var s=document.createElement('span');s.className='bn';s.textContent=txt;var a=document.createElement('b');a.textContent=money(amt);li.appendChild(s);li.appendChild(a);var on=!!(b.paid||{})[nm.toLowerCase()],pb=document.createElement('button');pb.type='button';pb.className='pdb';pb.dataset.pd=nm;pb.setAttribute('aria-pressed',on);pb.textContent=on?'Paid ✓':'Mark paid';li.appendChild(pb);pl.appendChild(li);rows++}
-b.people.forEach(function(p){if(p===pay)return;var amt=c.sh[p]||0;if(amt<=0)return;
-if(p==='You')row('You owe '+dn(pay),amt,true,p);else row(p+' owes '+dn(pay),amt,false,p)});
+function row(txt,amt,me,nm,st,nopd){var li=document.createElement('li');li.className='bi'+(me?' me':'');var s=document.createElement('span');s.className='bn';s.textContent=txt;var a=document.createElement('b');a.textContent=amt>0?money(amt):'';li.appendChild(s);li.appendChild(a);var on=!!(b.paid||{})[nm.toLowerCase()],pb=document.createElement('button');pb.type='button';pb.className='pdb';pb.dataset.pd=nm;pb.setAttribute('aria-pressed',on);pb.textContent=on?'Paid ✓':'Mark paid';if(!nopd)li.appendChild(pb);if(st){li.classList.add('wp');li.appendChild(st)}pl.appendChild(li);rows++}
+var seen=b.seen||{},shared=!!b.key,ph=phones();
+function stl(p,amt,paid){if(!shared)return null;var sn=!!seen[p.toLowerCase()],d=document.createElement('div');d.className='st2';var t=document.createElement('span');
+t.textContent=paid?'Paid ✓':(amt>0?(sn?'Picked items · hasn’t paid yet':'Hasn’t opened the link yet'):(sn?'Opened the link · hasn’t picked anything yet':'Hasn’t opened the link yet'));d.appendChild(t);
+if(!paid){var a=document.createElement('a');a.textContent='Remind';a.target='_blank';a.rel='noopener noreferrer';a.setAttribute('aria-label','Remind '+p+' on WhatsApp');
+var msg=amt>0?'Hey '+p+', your share for '+(b.restaurant||'the bill')+' is '+money(amt)+'. Here’s the link when you’re ready: '+buildLink(p):'Hey '+p+', here’s the bill from '+(b.restaurant||'dinner')+'. Tick what you had when you get a moment: '+buildLink(p);
+a.href=waLink(ph[p.toLowerCase()],msg);d.appendChild(a)}return d}
+b.people.forEach(function(p){if(p===pay)return;var amt=c.sh[p]||0;
+if(amt<=0){if(p==='You'||!shared)return;row(p+' hasn’t picked yet',0,false,p,stl(p,0,false),true);return}
+if(p==='You')row('You owe '+dn(pay),amt,true,p);else{var pd=!!(b.paid||{})[p.toLowerCase()];row(p+' owes '+dn(pay),amt,false,p,stl(p,amt,pd))}});
+if(shared){var inv=b.people.filter(function(p){return p!=='You'&&p!==pay}),jn=inv.filter(function(p){return seen[p.toLowerCase()]}).length;if(inv.length){var jl=document.createElement('li');jl.className='jn2';jl.textContent=jn+' of '+inv.length+(inv.length===1?' friend has':' friends have')+' opened the link.';pl.insertBefore(jl,pl.firstChild)}}
 var n=[dn(pay)+' paid '+money(c.sub+b.tax)+' for the bill.'];
 if(!rows)n.push('Nobody owes '+dn(pay)+' yet. Tick items to see the split.');
 if(c.un>0)n.push(money(c.un)+' of items aren’t claimed yet.');
@@ -1052,8 +1065,15 @@ cur.items.push({n:n.slice(0,60),a:Math.round(a*100)/100,p:[],open:false});if(cur
 function copyTxt(x,out){var bad=function(){out.textContent='Couldn’t copy. Please select the text and copy it.'};try{navigator.clipboard.writeText(x).then(function(){out.textContent='Copied to clipboard.'},bad)}catch(e){bad()}}
 function b64e(s){return btoa(unescape(encodeURIComponent(s))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'')}
 function b64d(s){s=s.replace(/-/g,'+').replace(/_/g,'/');while(s.length%4)s+='=';return decodeURIComponent(escape(atob(s)))}
-function buildLink(f){var b=cur;if(!b.key)b.key=Math.random().toString(36).slice(2,10)+Math.random().toString(36).slice(2,6);var hn=first(user&&user.name)||'Host',pn=b.payer&&b.payer!=='You'?b.payer:'',o={k:b.key,r:b.restaurant,l:b.loc,t:b.tax,h:hn,u:payerUpi(b),p:pn,f:f||'',i:b.items.map(function(i){return[i.n,i.a,i.p.map(function(x){return x==='You'?hn:x})]})};
-return location.href.split('#')[0].split('?')[0]+'?b='+b64e(JSON.stringify(o))}
+function buildLink(f){var b=cur;if(!b.key)b.key=Math.random().toString(36).slice(2,10)+Math.random().toString(36).slice(2,6);var hn=first(user&&user.name)||'Host',pn=b.payer&&b.payer!=='You'?b.payer:'',o={k:b.key,r:b.restaurant,l:b.loc,t:b.tax,h:hn,u:payerUpi(b),p:pn,f:'',i:b.items.map(function(i){return[i.n,i.a,i.p.map(function(x){return x==='You'?hn:x})]})};
+var sig=JSON.stringify(o),base=location.href.split('#')[0].split('?')[0];
+if(b.shortSig===sig)return base+'?s='+b.key+(f?'&f='+encodeURIComponent(f):'');
+saveBill(b,o,sig);o.f=f||'';return base+'?b='+b64e(JSON.stringify(o))}
+function saveBill(b,o,sig){var u=picksUrl();if(!u||b.saving===sig||b.shortSig===sig)return;b.saving=sig;
+fetch(u.replace(/\/picks$/,'/bill'),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:b.key,data:o})}).then(function(r){if(b.saving===sig)b.saving='';if(!r.ok)return;b.shortSig=sig;if(!$('sht').hidden&&cur===b){$('slk').textContent=buildLink('');renderSheet()}}).catch(function(){if(b.saving===sig)b.saving=''})}
+function loadShort(str){var m=/^([A-Za-z0-9_-]{6,40})(?:&f=(.*))?$/.exec(str||'');if(!m){renderFriend('');return}var f='';try{f=decodeURIComponent(m[2]||'')}catch(x){}
+$('fvc').hidden=true;$('fvf').hidden=true;$('fvh').textContent='Opening your bill…';$('fvs').textContent='';var u=picksUrl().replace(/\/picks$/,'/bill')+'?id='+m[1];
+fetch(u,{cache:'no-store'}).then(function(r){return r.ok?r.json():null}).then(function(j){if(!j||!j.data){renderFriend('');return}var d=j.data;d.f=f.slice(0,24);renderFriend(b64e(JSON.stringify(d)))}).catch(function(){renderFriend('')})}
 
 
 function fvPaid(){var d=FV&&FV.d;if(!d)return;var py=String(d.p||FV.nm||'').trim().slice(0,24),lp=py.toLowerCase();if(!py){$('fvn').hidden=false;$('fvni').focus();return}
@@ -1067,10 +1087,10 @@ try{history.replaceState(null,'',location.pathname)}catch(x){}
 location.hash='#app/bill/'+b.id;setTimeout(hostPoll,300);setTimeout(hostPoll,1500)}
 $('fvpb').addEventListener('click',fvPaid);
 var HPT=null;
-function hostPoll(){var u=picksUrl();if(!u||!cur||!cur.key||document.hidden)return;var ae=document.activeElement;if(ae&&/INPUT|TEXTAREA/.test(ae.tagName)&&$('app').contains(ae))return;var b=cur,id=b.key;fetch(u+'?id='+encodeURIComponent(id),{cache:'no-store'}).then(function(r){return r.ok?r.json():null}).then(function(m){if(!m||!m.p||cur!==b)return;var before=JSON.stringify([b.people,b.items.map(function(i){return i.p})]);
-Object.keys(m.p).forEach(function(k){var e=m.p[k];if(!e||!Array.isArray(e.s))return;var nm=String(e.n||k).trim().slice(0,24);if(!nm)return;var ex=b.people.filter(function(p){return p.toLowerCase()===nm.toLowerCase()})[0];if(!ex){b.people.push(nm);ex=nm;b.sum=false}
+function hostPoll(){var u=picksUrl();if(!u||!cur||!cur.key||document.hidden)return;var ae=document.activeElement;if(ae&&/INPUT|TEXTAREA/.test(ae.tagName)&&$('app').contains(ae))return;var b=cur,id=b.key;fetch(u+'?id='+encodeURIComponent(id),{cache:'no-store'}).then(function(r){return r.ok?r.json():null}).then(function(m){if(!m||!m.p||cur!==b)return;var before=JSON.stringify([b.people,b.items.map(function(i){return i.p}),b.seen]);
+b.seen=b.seen||{};Object.keys(m.p).forEach(function(k){var e=m.p[k];if(!e||!Array.isArray(e.s))return;b.seen[k.toLowerCase()]=1;var nm=String(e.n||k).trim().slice(0,24);if(!nm)return;var ex=b.people.filter(function(p){return p.toLowerCase()===nm.toLowerCase()})[0];if(!ex){b.people.push(nm);ex=nm;b.sum=false}
 b.items.forEach(function(it,ix){var has=it.p.indexOf(ex)>=0,want=e.s.indexOf(ix)>=0;if(want&&!has)it.p.push(ex);else if(!want&&has)it.p=it.p.filter(function(x){return x!==ex})})});
-if(JSON.stringify([b.people,b.items.map(function(i){return i.p})])!==before){renderBill();if(!$('sht').hidden)renderSheet()}}).catch(function(){})}
+if(JSON.stringify([b.people,b.items.map(function(i){return i.p}),b.seen])!==before){renderBill();if(!$('sht').hidden)renderSheet()}}).catch(function(){})}
 setInterval(function(){if(!$('app').hidden)hostPoll()},4000);
 var FV=null,FVT=null,FVP=null,FVPOST=null;
 function picksUrl(){return SCAN_URL?SCAN_URL.replace(/\/$/,'')+'/picks':''}
@@ -1248,7 +1268,7 @@ $('sdb').addEventListener('click',function(){closeDrawer(false)});
 document.querySelector('.sdn').addEventListener('click',function(e){if(e.target.closest('a'))closeDrawer(false)});
 document.addEventListener('keydown',function(e){if(e.key==='Escape'&&$('sd').classList.contains('open'))closeDrawer(true)});
 if(window.matchMedia('(min-width:861px)').addEventListener)window.matchMedia('(min-width:861px)').addEventListener('change',function(){closeDrawer(false)});
-try{var qb=new URLSearchParams(location.search).get('b');if(qb&&location.hash.indexOf('#b=')!==0)location.hash='#b='+qb}catch(x){}
+try{var qp=new URLSearchParams(location.search),qb=qp.get('b'),qs=qp.get('s');if(qb&&location.hash.indexOf('#b=')!==0)location.hash='#b='+qb;else if(qs&&location.hash.indexOf('#s=')!==0)location.hash='#s='+qs+(qp.get('f')?'&f='+encodeURIComponent(qp.get('f')):'')}catch(x){}
 route();
 var rv=[].slice.call(document.querySelectorAll('.rv'));
 if('IntersectionObserver' in window&&!window.matchMedia('(prefers-reduced-motion:reduce)').matches){
