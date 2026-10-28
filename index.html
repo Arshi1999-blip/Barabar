@@ -581,6 +581,7 @@ label.ck input.ck{margin:1px 0 0}
 <table class="it"><thead><tr><th scope="col">Item</th><th scope="col" class="q">Qty</th><th scope="col">Sharing</th><th scope="col" class="r">Amt</th><th scope="col" class="c"><span class="vh">I had it</span></th></tr></thead><tbody id="fvb"></tbody><tfoot><tr id="fvx" hidden><td colspan="3">Tax &amp; charges</td><td class="r" id="fvxv"></td><td></td></tr><tr class="tot"><td colspan="3">Total bill</td><td class="r" id="fvtt"></td><td></td></tr></tfoot></table>
 </div>
 <label class="fvr" id="fvrl" hidden><input type="checkbox" class="ck" id="fvrest"><span><b>I had every item</b><small>Tick this if you had everything on the bill. Untick any you didn’t have.</small></span></label>
+<p class="hn" id="fvlv" hidden style="margin:12px 0 0">Live sharing is off right now, so you can’t see what your friends picked, and each share is worked out on its own. The bill owner needs to switch it on.</p>
 <p class="fpd" id="fvpd" hidden><button type="button" id="fvpb"></button></p>
 <div class="owe" id="fvo" hidden><span id="fvol"></span><b id="fvov"></b></div>
 <div class="bf" id="fvf" hidden>
@@ -1055,7 +1056,7 @@ function buildLink(f){var b=cur;if(!b.key)b.key=Math.random().toString(36).slice
 return location.href.split('#')[0].split('?')[0]+'?b='+b64e(JSON.stringify(o))}
 
 
-function fvPaid(){var d=FV&&FV.d;if(!d||!d.p)return;var py=String(d.p).trim().slice(0,24),lp=py.toLowerCase();
+function fvPaid(){var d=FV&&FV.d;if(!d)return;var py=String(d.p||FV.nm||'').trim().slice(0,24),lp=py.toLowerCase();if(!py){$('fvn').hidden=false;$('fvni').focus();return}
 if(!user){user={name:py,email:'',upi:String(d.u||'')};saveUser()}else if(!user.upi&&d.u&&UP.test(String(d.u))){user.upi=String(d.u);saveUser()}
 var b=null;for(var i=0;i<bills.length;i++)if(d.k&&bills[i].key===d.k)b=bills[i];
 if(!b){var map=function(x){return String(x).trim().toLowerCase()===lp?'You':String(x).slice(0,24)},ppl=['You'];
@@ -1081,10 +1082,10 @@ FV.pl=pl;d=FV.d;var host=String(d.h||'Your friend').slice(0,24);
 $('fvh').innerHTML='';$('fvh').appendChild(document.createTextNode(FV.nm?'Hi ':'Pick your '));var sp=document.createElement('span');sp.className='ac';sp.textContent=FV.nm||'items';$('fvh').appendChild(sp);
 $('fvs').textContent=host+' shared this bill. Tick the items you had'+(d.p?', then pay '+cap(String(d.p).slice(0,24))+' your share.':', then pay your share.');
 $('fvr').textContent=String(d.r||'Your bill').slice(0,60);$('fvi').textContent=ini(d.r||'B')||'B';$('fvl').textContent=String(d.l||'').slice(0,60);
-$('fvn').hidden=!!FV.nm;$('fvrl').hidden=!FV.nm;$('fvrest').checked=FV.sel.length>0&&FV.sel.every(Boolean);var pdn=String(d.p||'').trim().slice(0,24);$('fvpd').hidden=!pdn;$('fvpb').textContent='Paid this bill? Open it as '+cap(pdn);fvDraw();fvLive();if(FV.nm&&!FV.posted){FV.posted=1;fvPost()}}
+$('fvn').hidden=!!FV.nm;$('fvrl').hidden=!FV.nm;$('fvrest').checked=FV.sel.length>0&&FV.sel.every(Boolean);var pdn=String(d.p||'').trim().slice(0,24);$('fvpd').hidden=false;$('fvpb').textContent=pdn?'Paid this bill? Open it as '+cap(pdn):'I paid this bill';fvDraw();fvLive();if(FV.nm&&!FV.posted){FV.posted=1;fvPost()}}
 $('fvn').addEventListener('submit',function(e){e.preventDefault();var v=$('fvni').value.trim().slice(0,24);if(!v||!FV)return;try{localStorage.setItem('bb_fn',v)}catch(x){}FV.nm=v;renderFriend(FV.pl);fvPost()});
 function fvLive(){var u=picksUrl();if(!u||!FV||!FV.d.k||FVT)return;FVT=setInterval(fvPoll,4000);fvPoll()}
-function fvPoll(){if(document.hidden||$('fv').hidden||!FV)return;var u=picksUrl()+'?id='+encodeURIComponent(FV.d.k);fetch(u,{cache:'no-store'}).then(function(r){return r.ok?r.json():null}).then(function(m){if(!m||!m.p||!FV)return;var lv={},ln={};Object.keys(m.p).forEach(function(k){var e=m.p[k];if(e&&Array.isArray(e.s)){lv[k.toLowerCase()]=e.s;ln[k.toLowerCase()]=e.n||k}});var me=FV.nm.toLowerCase();if(me&&lv[me]&&!FV.touched){FV.sel=FV.d.i.map(function(r,ix){return lv[me].indexOf(ix)>=0});FV.touched=true}var j=JSON.stringify([lv,FV.sel]);if(j!==FV.lj){FV.lj=j;FV.live=lv;FV.liveN=ln;fvDraw()}}).catch(function(){})}
+function fvPoll(){if(document.hidden||$('fv').hidden||!FV)return;var u=picksUrl()+'?id='+encodeURIComponent(FV.d.k);fetch(u,{cache:'no-store'}).then(function(r){if(!r.ok){FV.lerr=1;$('fvlv').hidden=false;return null}FV.lerr=0;$('fvlv').hidden=true;return r.json()}).then(function(m){if(!m||!m.p||!FV)return;var lv={},ln={};Object.keys(m.p).forEach(function(k){var e=m.p[k];if(e&&Array.isArray(e.s)){lv[k.toLowerCase()]=e.s;ln[k.toLowerCase()]=e.n||k}});var me=FV.nm.toLowerCase();if(me&&lv[me]&&!FV.touched){FV.sel=FV.d.i.map(function(r,ix){return lv[me].indexOf(ix)>=0});FV.touched=true}var j=JSON.stringify([lv,FV.sel]);if(j!==FV.lj){FV.lj=j;FV.live=lv;FV.liveN=ln;fvDraw()}}).catch(function(){if(FV){$('fvlv').hidden=false}})}
 function fvPost(){var u=picksUrl();if(!u||!FV||!FV.d.k||!FV.nm)return;clearTimeout(FVPOST);FVPOST=setTimeout(function(){var s=[];FV.sel.forEach(function(v,i){if(v)s.push(i)});fetch(u,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:FV.d.k,name:FV.nm,sel:s})}).catch(function(){})},350)}
 function fvDraw(){var d=FV.d,lc=FV.nm.toLowerCase(),tb=$('fvb'),sub=0,tax=Number(d.t)>0?Number(d.t):0;tb.textContent='';
 d.i.forEach(function(r){sub+=Number(r[1])});var f=sub>0?1+tax/sub:1,sel=0,sh=0,names=[];
