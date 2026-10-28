@@ -418,6 +418,7 @@ label.ck input.ck{margin:1px 0 0}
 #eds .shi{position:relative;z-index:1}
 @media(max-width:520px){#dlt,#edt{font-size:22px!important}}
 .hrt{display:flex;align-items:center;gap:10px;flex:none}
+.nbd{position:absolute;top:2px;right:2px;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--ink);color:#fff;font:600 11px/18px inherit;font-style:normal;text-align:center}.nbd.nbs{position:static;display:inline-block;margin-left:auto}.nbd[hidden]{display:none}
 .nb{display:grid;place-items:center;width:44px;height:44px;border:1px solid var(--ln);border-radius:50%;background:var(--cd);color:var(--ink)}
 @media (max-width:860px){.sdn .dn-n{display:none}}
 .pvf{display:inline-flex;align-items:center;min-height:44px;padding:0 4px}
@@ -611,7 +612,7 @@ li.jn2{list-style:none;font-size:13px;color:var(--mu);margin:0 0 2px;padding:0 2
 <a href="#app" data-v="home"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11l8-7 8 7"/><path d="M6 10v9h12v-9"/></svg>Home</a>
 <a href="#app/trips" data-v="trips"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-6-5.4-6-10a6 6 0 1 1 12 0c0 4.6-6 10-6 10z"/><circle cx="12" cy="11" r="2.2"/></svg>Trips</a>
 <a href="#app/history" data-v="history"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>History</a>
-<a class="dn-n" href="#app/notifications" data-v="notifications"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 16v-5a6 6 0 1 1 12 0v5l1.5 2h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/></svg>Notifications</a>
+<a class="dn-n" href="#app/notifications" data-v="notifications"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 16v-5a6 6 0 1 1 12 0v5l1.5 2h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/></svg>Notifications<i class="nbd nbs" hidden></i></a>
 <hr>
 <a href="#app/profile" data-v="profile"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8.5" r="3.5"/><path d="M5 20a7 7 0 0 1 14 0"/></svg>Profile</a>
 <a href="#app/settings" data-v="settings"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 3v2.5M12 18.5V21M3 12h2.5M18.5 12H21M5.6 5.6l1.8 1.8M16.6 16.6l1.8 1.8M5.6 18.4l1.8-1.8M16.6 7.4l1.8-1.8"/></svg>Settings</a>
@@ -621,7 +622,7 @@ li.jn2{list-style:none;font-size:13px;color:var(--mu);margin:0 0 2px;padding:0 2
 </aside>
 <div class="sdb" id="sdb"></div>
 <div class="am">
-<header class="amh"><button class="mb" id="mb" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="sd"><span></span><span></span><span></span></button><a class="logo" href="#app">Barabar.</a><span class="hrt"><a class="nb" href="#app/notifications" aria-label="Notifications"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 16v-5a6 6 0 1 1 12 0v5l1.5 2h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/></svg></a></span></header>
+<header class="amh"><button class="mb" id="mb" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="sd"><span></span><span></span><span></span></button><a class="logo" href="#app">Barabar.</a><span class="hrt"><a class="nb" href="#app/notifications" aria-label="Notifications" style="position:relative"><i class="nbd" hidden></i><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 16v-5a6 6 0 1 1 12 0v5l1.5 2h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/></svg></a></span></header>
 
 <div class="pgv ab" data-p="home">
 <h1 id="ag" tabindex="-1"><span id="gt">Hello,</span> <span class="ac" id="an">friend</span></h1>
@@ -660,7 +661,9 @@ li.jn2{list-style:none;font-size:13px;color:var(--mu);margin:0 0 2px;padding:0 2
 <div class="pgv" data-p="notifications" hidden>
 <h1 tabindex="-1">Notifications</h1>
 <p class="ss">Updates about your bills and payments show up here.</p>
-<div class="em">You’re all caught up.</div>
+<div class="em" id="nem">You’re all caught up. When a friend hasn’t opened your link or paid, it shows up here.</div>
+<ul class="bl" id="nl"></ul>
+<div style="margin-top:20px"><button class="lk" type="button" id="nbt">Turn on alerts</button><p class="hn" id="nbm"></p></div>
 </div>
 
 <div class="pgv" data-p="profile" hidden>
@@ -1083,7 +1086,7 @@ cur.items.push({n:n.slice(0,60),a:Math.round(a*100)/100,p:[],open:false});if(cur
 function copyTxt(x,out){var bad=function(){out.textContent='Couldn’t copy. Please select the text and copy it.'};try{navigator.clipboard.writeText(x).then(function(){out.textContent='Copied to clipboard.'},bad)}catch(e){bad()}}
 function b64e(s){return btoa(unescape(encodeURIComponent(s))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'')}
 function b64d(s){s=s.replace(/-/g,'+').replace(/_/g,'/');while(s.length%4)s+='=';return decodeURIComponent(escape(atob(s)))}
-function buildLink(f){f='';var b=cur;b.shared=1;if(!b.key)b.key=Math.random().toString(36).slice(2,10)+Math.random().toString(36).slice(2,6);var hn=first(user&&user.name)||'Host',pn=b.payer&&b.payer!=='You'?b.payer:'',o={k:b.key,r:b.restaurant,l:b.loc,t:b.tax,h:hn,u:payerUpi(b),p:pn,f:'',i:b.items.map(function(i){return[i.n,i.a,i.p.map(function(x){return x==='You'?hn:x})]})};
+function buildLink(f){f='';var b=cur;b.shared=1;if(!b.sharedAt)b.sharedAt=Date.now();if(!b.key)b.key=Math.random().toString(36).slice(2,10)+Math.random().toString(36).slice(2,6);var hn=first(user&&user.name)||'Host',pn=b.payer&&b.payer!=='You'?b.payer:'',o={k:b.key,r:b.restaurant,l:b.loc,t:b.tax,h:hn,u:payerUpi(b),p:pn,f:'',i:b.items.map(function(i){return[i.n,i.a,i.p.map(function(x){return x==='You'?hn:x})]})};
 var sig=JSON.stringify(o),base=location.href.split('#')[0].split('?')[0];
 if(b.shortSig===sig)return base+'?s='+b.key+(f?'&f='+encodeURIComponent(f):'');
 saveBill(b,o,sig);o.f=f||'';return base+'?b='+b64e(JSON.stringify(o))}
@@ -1111,12 +1114,45 @@ function hostPost(b){var u=picksUrl();if(!u||!b||!b.key||!b.shared||!isLive(b))r
 var pn=b.pexp?(b.payer==='You'?hn:b.payer):null,sig=JSON.stringify([s,pn,hn,payerUpi(b)]);if(b.hpsig===sig)return;
 var body={id:b.key,name:hn,sel:s};if(pn){body.payer=pn;body.force=1;var uu=payerUpi(b);if(uu)body.u=uu}
 fetch(u,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}).then(function(r){if(r.ok)b.hpsig=sig}).catch(function(){})}
-function hostPoll(){var u=picksUrl();if(!u||!cur||!cur.key||document.hidden||!isLive(cur))return;var ae=document.activeElement;if(ae&&/INPUT|TEXTAREA/.test(ae.tagName)&&$('app').contains(ae))return;var b=cur,id=b.key;hostPost(b);fetch(u+'?id='+encodeURIComponent(id),{cache:'no-store'}).then(function(r){return r.ok?r.json():null}).then(function(m){if(!m||!m.p||cur!==b)return;var before=JSON.stringify([b.people,b.items.map(function(i){return i.p}),b.seen,b.payer,b.upis]);
+function applyPicks(b,m){var before=JSON.stringify([b.people,b.items.map(function(i){return i.p}),b.seen,b.payer,b.upis]);
 b.seen=b.seen||{};Object.keys(m.p).forEach(function(k){var e=m.p[k];if(!e||!Array.isArray(e.s))return;if(isMeName(e.n||k,b))return;b.seen[k.toLowerCase()]=1;var nm=String(e.n||k).trim().slice(0,24);if(!nm)return;var ex=b.people.filter(function(p){return p.toLowerCase()===nm.toLowerCase()})[0];if(!ex){b.people.push(nm);ex=nm;b.sum=false}
 b.items.forEach(function(it,ix){var has=it.p.indexOf(ex)>=0,want=e.s.indexOf(ix)>=0;if(want&&!has)it.p.push(ex);else if(!want&&has)it.p=it.p.filter(function(x){return x!==ex})})});
 if(m.py&&m.py.n&&!b.pexp){var pn=String(m.py.n).trim().slice(0,24),np=isMeName(pn,b)?'You':b.people.filter(function(p){return p.toLowerCase()===pn.toLowerCase()})[0];if(!np){b.people.push(pn);np=pn;b.sum=false}
 if(b.payer!==np){b.payer=np;b.sum=false}if(np!=='You'&&m.py.u&&UP.test(m.py.u)){b.upis=b.upis||{};if(!b.upis[np.toLowerCase()])b.upis[np.toLowerCase()]=m.py.u}}
-if(JSON.stringify([b.people,b.items.map(function(i){return i.p}),b.seen,b.payer,b.upis])!==before){renderBill();if(!$('sht').hidden)renderSheet()}}).catch(function(){})}
+return JSON.stringify([b.people,b.items.map(function(i){return i.p}),b.seen,b.payer,b.upis])!==before}
+function hostPoll(){var u=picksUrl();if(!u||!cur||!cur.key||document.hidden||!isLive(cur))return;var ae=document.activeElement;if(ae&&/INPUT|TEXTAREA/.test(ae.tagName)&&$('app').contains(ae))return;var b=cur,id=b.key;hostPost(b);fetch(u+'?id='+encodeURIComponent(id),{cache:'no-store'}).then(function(r){return r.ok?r.json():null}).then(function(m){if(!m||!m.p||cur!==b)return;if(applyPicks(b,m)){renderBill();if(!$('sht').hidden)renderSheet()}renderNotifs()}).catch(function(){})}
+function notifPoll(){var u=picksUrl();if(!u||!user||document.hidden)return;var list=bills.filter(function(b){return b.shared&&b.key&&b!==cur&&isLive(b)&&b.status!=='reading'}).slice(0,8);
+Promise.all(list.map(function(b){return fetch(u+'?id='+encodeURIComponent(b.key),{cache:'no-store'}).then(function(r){return r.ok?r.json():null}).then(function(m){if(m&&m.p)applyPicks(b,m)}).catch(function(){})})).then(renderNotifs)}
+var NT_OPEN=10*6e4,NT_PAY=30*6e4,NSEEN=null;
+function nDis(v){try{if(v===undefined)return JSON.parse(localStorage.getItem('bb_nd')||'[]');localStorage.setItem('bb_nd',JSON.stringify(v.slice(-200)))}catch(x){return []}}
+function ago(t){var m=Math.max(1,Math.round((Date.now()-t)/6e4));return m<60?m+' min ago':m<1440?Math.round(m/60)+' h ago':Math.round(m/1440)+' d ago'}
+function joinN(a){return a.length<=2?a.join(' and '):a.slice(0,2).join(', ')+' and '+(a.length-2)+' more'}
+function buildNotifs(){var out=[],now=Date.now();bills.forEach(function(b){if(!b.shared||!b.sharedAt||!isLive(b)||b.status==='reading'||!b.items.length)return;var c=calc(b),pay=b.payer||'',pl=pay.toLowerCase(),seen=b.seen||{},age=now-b.sharedAt;
+var others=b.people.filter(function(p){return p!=='You'&&p.toLowerCase()!==pl}),no=[],np=[],up=[],amt=0;
+others.forEach(function(p){var k=p.toLowerCase(),sh=c.sh[p]||0;if(!seen[k])no.push(p);else if(sh<=0)np.push(p);else if(pay&&!(b.paid||{})[k]){up.push(p);amt+=sh}});
+var base=(b.restaurant||b.name)+' · shared '+ago(b.sharedAt);
+function add(t,names,title,extra){if(!names.length)return;out.push({id:b.key+':'+t+':'+names.join('|'),b:b,t:t,names:names,title:title,sub:base,extra:extra})}
+if(age>=NT_OPEN)add('o',no,joinN(no)+(no.length===1?' hasn’t':' haven’t')+' opened the link');
+if(age>=NT_OPEN)add('p',np,joinN(np)+(np.length===1?' opened':' opened')+' the link but '+(np.length===1?'hasn’t':'haven’t')+' picked items');
+if(age>=NT_PAY)add('u',up,joinN(up)+(up.length===1?' still owes ':' still owe ')+money(Math.round(amt*100)/100)+(pay==='You'?' to you':' to '+pay),amt)});
+var d=nDis();return out.filter(function(n){return d.indexOf(n.id)<0}).sort(function(a,b){return b.b.sharedAt-a.b.sharedAt})}
+function nText(n){var b=n.b,keep=cur;cur=b;var l;try{l=buildLink('')}finally{cur=keep}var r=b.restaurant||'the bill';
+return n.t==='u'?'Hey! Quick reminder about the bill from '+r+'. Your share is still pending'+(b.payer&&b.payer!=='You'?' for '+b.payer:'')+'. Open the link, tick your items and pay: '+l:'Hey! Here’s the bill from '+r+'. Tick the items you had so we can split it: '+l}
+function renderNotifs(){if(!user)return;var list=buildNotifs(),ul=$('nl');if(!ul)return;ul.textContent='';$('nem').hidden=list.length>0;
+list.forEach(function(n){var li=document.createElement('li');li.className='bi wp';var tx=document.createElement('div');tx.style.cssText='min-width:0;flex:1 1 200px';var t=document.createElement('div');t.className='bn';t.style.whiteSpace='normal';t.textContent=n.title;var m=document.createElement('div');m.className='bm2';m.textContent=n.sub;tx.appendChild(t);tx.appendChild(m);li.appendChild(tx);
+var ac=document.createElement('div');ac.style.cssText='display:flex;gap:16px;align-items:center;flex:1 1 100%;font-size:14px';
+var r=document.createElement('a');r.className='lk';r.target='_blank';r.rel='noopener noreferrer';r.href=waLink('',nText(n));r.textContent='Remind on WhatsApp';
+var o=document.createElement('a');o.className='lk';o.href='#app/bill/'+n.b.id;o.textContent='Open bill';
+var x=document.createElement('button');x.type='button';x.className='lk';x.textContent='Dismiss';x.style.cssText='margin-left:auto;padding:0;font:inherit;line-height:inherit;align-self:center';x.addEventListener('click',function(){var d=nDis();d.push(n.id);nDis(d);renderNotifs()});
+ac.appendChild(r);ac.appendChild(o);ac.appendChild(x);li.appendChild(ac);ul.appendChild(li)});
+var c=list.length;[].forEach.call(document.querySelectorAll('.nbd'),function(e){e.hidden=!c;e.textContent=c>9?'9+':String(c)});
+var ids=list.map(function(n){return n.id});if(NSEEN===null){NSEEN=ids}else{var fresh=list.filter(function(n){return NSEEN.indexOf(n.id)<0});NSEEN=ids;
+if(fresh.length&&document.hidden&&window.Notification&&Notification.permission==='granted'&&localStorage.getItem('bb_alerts')==='1'){try{new Notification(fresh[0].title,{body:fresh[0].sub})}catch(x){}}}}
+var NBT=$('nbt');
+function nbtShow(){if(!window.Notification){NBT.hidden=true;return}var on=Notification.permission==='granted'&&localStorage.getItem('bb_alerts')==='1';NBT.textContent=on?'Turn off alerts':'Turn on alerts';$('nbm').textContent=Notification.permission==='denied'?'Alerts are blocked in your browser settings.':(on?'You’ll get an alert here while Barabar is open in a tab.':'Get an alert when someone hasn’t joined or paid. Works while Barabar is open in a tab.')}
+NBT.addEventListener('click',function(){if(!window.Notification)return;var on=Notification.permission==='granted'&&localStorage.getItem('bb_alerts')==='1';if(on){localStorage.setItem('bb_alerts','0');nbtShow();return}
+Notification.requestPermission().then(function(r){if(r==='granted')localStorage.setItem('bb_alerts','1');nbtShow()})});nbtShow();
+setInterval(function(){if(user)notifPoll()},30000);setTimeout(function(){if(user)notifPoll()},2500);setInterval(renderNotifs,60000);
 setInterval(function(){if(!$('app').hidden)hostPoll()},4000);
 var FV=null,FVT=null,FVP=null,FVPOST=null;
 function picksUrl(){return SCAN_URL?SCAN_URL.replace(/\/$/,'')+'/picks':''}
