@@ -522,6 +522,9 @@ li.jn2{list-style:none;font-size:13px;color:var(--mu);margin:0 0 2px;padding:0 2
 .jnch button{height:44px;padding:0 18px;border-radius:999px;border:1.5px solid var(--ln);background:#fff;font:inherit;font-weight:600;cursor:pointer}
 .jnch button[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
 #jnf{display:grid;gap:10px}#jnf input{height:48px;border:1.5px solid var(--ln);border-radius:14px;padding:0 14px;font:inherit}
+.fvbk{display:inline-flex;align-items:center;margin-left:16px;height:36px;padding:0 14px;border:1px solid var(--ln);border-radius:999px;font-size:14px;font-weight:600;color:var(--ink);text-decoration:none;vertical-align:middle}
+.tob-a{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;width:100%;padding:16px 18px;color:inherit;text-decoration:none;border-radius:inherit}
+.tob-a:focus-visible{outline:2px solid var(--ac);outline-offset:-2px}
 .tob-m{display:block;color:var(--mu);font-size:13px;font-weight:500}
 </style>
 </head>
@@ -622,7 +625,7 @@ li.jn2{list-style:none;font-size:13px;color:var(--mu);margin:0 0 2px;padding:0 2
 </main>
 
 <main id="fv" hidden aria-label="Shared bill"><div class="fw">
-<a class="logo" href="#top">Barabar.</a>
+<a class="logo" href="#top">Barabar.</a><a class="fvbk" id="fvbk" href="#app" hidden>← Back to trip</a>
 <h1 id="fvh" tabindex="-1"></h1><p class="ss" id="fvs" style="margin-top:8px"></p>
 <form class="fnm" id="fvn" hidden><label for="fvni">What’s your name?</label><div><input id="fvni" maxlength="24" autocomplete="given-name" placeholder="Your name"><button class="btn" type="submit">Continue</button></div></form>
 <div class="bcd" id="fvc" hidden>
@@ -880,8 +883,8 @@ $('sbtn').textContent=lg?'Log in':'Create account';
 $('swt').innerHTML=lg?'New to Barabar? <button type="button" class="lk" data-m="signup">Create an account</button>':'Already have an account? <button type="button" class="lk" data-m="login">Log in</button>';
 ['name','email','upi','terms'].forEach(function(k){err(k,'')});$('gm').textContent=''}
 function route(){var jm0=/^#t=([a-z0-9]{6,20})$/.exec(location.hash);if(jm0){store('barabar:jt',jm0[1]);location.hash=user?'#app':'#signup';return}var h=location.hash,s=(h==='#signup'||h==='#login'),m=/^#app(?:\/([a-z]+)(?:\/(\w+))?)?$/.exec(h),a=!!m,view=a?(m[1]||'home'):'',bid=a?m[2]:'';
-if(h.indexOf('#s=')===0){home.hidden=true;su.hidden=true;app.hidden=true;$('fv').hidden=false;document.title='Shared bill · Barabar';window.scrollTo(0,0);loadShort(h.slice(3));return}
-if(h.indexOf('#b=')===0){home.hidden=true;su.hidden=true;app.hidden=true;$('fv').hidden=false;document.title='Shared bill · Barabar';window.scrollTo(0,0);renderFriend(h.slice(3));return}
+if(h.indexOf('#s=')===0){var bk=$('fvbk');if(FVBK){bk.href=FVBK;bk.hidden=false}else bk.hidden=true;FVBK='';home.hidden=true;su.hidden=true;app.hidden=true;$('fv').hidden=false;document.title='Shared bill · Barabar';window.scrollTo(0,0);loadShort(h.slice(3));return}
+if(h.indexOf('#b=')===0){$('fvbk').hidden=true;FVBK='';home.hidden=true;su.hidden=true;app.hidden=true;$('fv').hidden=false;document.title='Shared bill · Barabar';window.scrollTo(0,0);renderFriend(h.slice(3));return}
 $('fv').hidden=true;
 if(a&&VIEWS.indexOf(view)<0)view='home';
 if(s&&user){location.hash='#app';return}
@@ -1309,7 +1312,7 @@ $('tstart').addEventListener('click',function(){$('tn').focus()});
 $('tf').addEventListener('submit',function(e){e.preventDefault();var v=$('tn').value.trim().replace(/\s+/g,' ');if(!v){$('tn').focus();return}var nt={id:'t'+(++tseq),name:v,me:first(user&&user.name)||'Me'};trips.push(nt);$('tn').value='';renderTrips();$('tn').focus();tEnsure(nt).then(function(){persist()})});
 
 /* ===== Trips: shared trip, bills from any friend, one total split ===== */
-var TD={},TMK={},TB={},TSP=false,TVIEW='simple',TLAST=0;
+var FVBK='',TRL={},TD={},TMK={},TB={},TSP=false,TVIEW='simple',TLAST=0;
 function tUrl(){return SCAN_URL?SCAN_URL.replace(/\/$/,'')+'/trip':''}
 function tPost(body){var u=tUrl();if(!u)return Promise.reject(new Error('nourl'));return fetch(u,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}).then(function(r){if(!r.ok)throw new Error('http'+r.status);return r.json()})}
 function tGet(tk){var u=tUrl();if(!u)return Promise.reject(new Error('nourl'));return fetch(u+'?id='+encodeURIComponent(tk),{cache:'no-store'}).then(function(r){if(!r.ok)throw new Error('http'+r.status);return r.json()})}
@@ -1321,9 +1324,18 @@ function tEnsure(t){if(!t||t.tk||TMK[t.id])return Promise.resolve();TMK[t.id]=1;
 function tFetch(t){if(!t||!t.tk)return Promise.resolve();return tGet(t.tk).then(function(d){tSet(t,d)}).catch(function(){})}
 function tOpen(t){tEnsure(t).then(function(){tFetch(t)});tPush();tRender()}
 function rnd2(x){return Math.round(x*100)/100}
+function tData(b){var u=picksUrl();if(!u||!b.key||!b.items||!b.items.length)return;var hn=first(user&&user.name)||'Host',pn=b.payer&&b.payer!=='You'&&!isMeName(b.payer,b)?b.payer:'',o={k:b.key,r:b.restaurant,l:b.loc,t:b.tax,h:hn,u:payerUpi(b),p:pn,f:'',i:b.items.map(function(i){return[i.n,i.a,i.p.map(function(x){return x==='You'?hn:x})]})},sig=JSON.stringify(o);if(b.tdsig===sig||TB['d'+b.key])return;TB['d'+b.key]=1;fetch(u.replace(/\/picks$/,'/bill'),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:b.key,data:o})}).then(function(r){if(r.ok)b.tdsig=sig}).catch(function(){}).then(function(){TB['d'+b.key]=0})}
+/* keep a friend's bill up to date from the ticks people make, even when the person who added it is offline */
+function tRelay(t,d){var pu=picksUrl();if(!pu||!t||!d)return;var own={};bills.forEach(function(b){if(b.key)own[b.key]=1});Object.keys(d.b||{}).filter(function(k){return !own[k]}).slice(0,12).forEach(function(k){if(TRL[k])return;TRL[k]=1;var cb=d.b[k];
+Promise.all([fetch(pu.replace(/\/picks$/,'/bill')+'?id='+encodeURIComponent(k),{cache:'no-store'}).then(function(r){return r.ok?r.json():null}),fetch(pu+'?id='+encodeURIComponent(k),{cache:'no-store'}).then(function(r){return r.ok?r.json():null})]).then(function(r){var bd=r[0]&&r[0].data,m=r[1]||{},pk=m.p||{};if(!bd||!Array.isArray(bd.i))return;var ov={};Object.keys(pk).forEach(function(l){var e=pk[l];if(e&&Array.isArray(e.s))ov[l.toLowerCase()]=e});
+var sub=0;bd.i.forEach(function(x){sub+=Number(x[1])||0});var f=sub>0?1+(Number(bd.t)||0)/sub:1,sh={},nm={};
+bd.i.forEach(function(row,ix){var who={};(row[2]||[]).forEach(function(n){var l=String(n).toLowerCase();if(!ov[l])who[l]=String(n).slice(0,24)});Object.keys(ov).forEach(function(l){if(ov[l].s.indexOf(ix)>=0)who[l]=String(ov[l].n||l).slice(0,24)});var ls=Object.keys(who);if(!ls.length)return;var each=row[1]/ls.length*f;ls.forEach(function(l){sh[l]=(sh[l]||0)+each;nm[l]=who[l]})});
+var s2={};Object.keys(sh).forEach(function(l){var v=rnd2(sh[l]);if(v>0)s2[nm[l]]=v});var py=String((m.py&&m.py.n)||bd.p||bd.h||cb.p).slice(0,24);
+var a=JSON.stringify([cb.p,Object.keys(cb.s||{}).sort().map(function(q){return [q,cb.s[q]]})]),b2=JSON.stringify([py,Object.keys(s2).sort().map(function(q){return [q,s2[q]]})]);if(a===b2)return;
+return tPost({op:'bill',id:t.tk,bill:{k:k,n:cb.n,p:py,t:rnd2(sub+(Number(bd.t)||0)),s:s2,ts:cb.ts,by:cb.by}}).then(function(dd){tSet(t,dd)})}).catch(function(){}).then(function(){TRL[k]=0})})}
 function tSum(b,t){var c=calc(b),me=tMe(t),s={};Object.keys(c.sh).forEach(function(p){var v=rnd2(c.sh[p]);if(v>0){var n=p==='You'?me:p;s[n]=rnd2((s[n]||0)+v)}});
 var py=(!b.payer||b.payer==='You'||isMeName(b.payer,b))?me:b.payer;return{k:b.key,n:(b.restaurant||b.name||'Bill'),p:py,t:rnd2(c.sub+(b.tax||0)),s:s,ts:b.ts||Date.now(),by:me,u:payerUpi(b)||''}}
-function tPush(){if(!user||!tUrl())return;bills.forEach(function(b){if(!b.trip||b.status==='reading'||!b.items||!b.items.length)return;var t=tById(b.trip);if(!t||!t.tk)return;if(!b.key)b.key=Math.random().toString(36).slice(2,10)+Math.random().toString(36).slice(2,6);var sm=tSum(b,t),sig=JSON.stringify([t.tk,sm.n,sm.p,sm.t,sm.s,sm.u]);if(b.tsig===sig||TB[b.key])return;TB[b.key]=1;tPost({op:'bill',id:t.tk,bill:sm}).then(function(d){b.tsig=sig;tSet(t,d)}).catch(function(){}).then(function(){TB[b.key]=0})})}
+function tPush(){if(!user||!tUrl())return;bills.forEach(function(b){if(!b.trip||b.status==='reading'||!b.items||!b.items.length)return;var t=tById(b.trip);if(!t||!t.tk)return;if(!b.key)b.key=Math.random().toString(36).slice(2,10)+Math.random().toString(36).slice(2,6);tData(b);var sm=tSum(b,t),sig=JSON.stringify([t.tk,sm.n,sm.p,sm.t,sm.s,sm.u]);if(b.tsig===sig||TB[b.key])return;TB[b.key]=1;tPost({op:'bill',id:t.tk,bill:sm}).then(function(d){b.tsig=sig;tSet(t,d)}).catch(function(){}).then(function(){TB[b.key]=0})})}
 /* the maths: who owes whom, netted per pair, plus the fewest-payments version */
 function tCalc(d,me){var al=d.al||{},mem=(d.m||[]).slice(),guests=[],P={},DT={};
 function canon(x){var n=String(x||'').trim().slice(0,24),g=0;while(al[n.toLowerCase()]&&g++<5)n=al[n.toLowerCase()];var h=mem.filter(function(q){return q.toLowerCase()===n.toLowerCase()})[0];if(h)return h;if(n&&!guests.some(function(q){return q.toLowerCase()===n.toLowerCase()}))guests.push(n);return guests.filter(function(q){return q.toLowerCase()===n.toLowerCase()})[0]||n}
@@ -1360,7 +1372,7 @@ if(TVIEW==='detailed'){var dl=el('ul');l.why.forEach(function(w){if(w.pay){var x
 ul.appendChild(li)});
 var pl=$('tpl');pl.textContent='';C.names.forEach(function(n){var li=el('li'),nm=el('b','',n);li.appendChild(nm);if(C.guests.indexOf(n)>=0)li.appendChild(el('span','gt','not on the trip list'));var o=C.mem.filter(function(x){return x!==n});if(o.length){var sel=document.createElement('select');sel.setAttribute('aria-label','Merge '+n+' into');var z=document.createElement('option');z.value='';z.textContent='Same person as…';sel.appendChild(z);o.forEach(function(x){var op=document.createElement('option');op.value=x;op.textContent=x;sel.appendChild(op)});var bt=el('button','','Merge');bt.type='button';bt.addEventListener('click',function(){if(!sel.value)return;bt.disabled=true;tPost({op:'merge',id:t.tk,from:n,into:sel.value}).then(function(dd){tSet(t,dd);tMsg(n+' merged into '+sel.value+'.')}).catch(function(){bt.disabled=false})});li.appendChild(sel);li.appendChild(bt)}pl.appendChild(li)})}
 function tRenderOthers(t,d,C){var ul=$('tob');ul.textContent='';var mine={};bills.forEach(function(b){if(b.key&&b.trip===t.id)mine[b.key]=1});var ks=Object.keys(d.b||{}).filter(function(k){return !mine[k]}).sort(function(a,b){return (d.b[b].ts||0)-(d.b[a].ts||0)});$('toh').hidden=!ks.length;
-ks.forEach(function(k){var x=d.b[k],li=el('li','bi'),w=el('div');w.style.cssText='padding:16px 18px;display:flex;justify-content:space-between;gap:12px;align-items:flex-start;width:100%';var l=el('div'),a=el('b','',x.n||'Bill');a.style.display='block';l.appendChild(a);l.appendChild(el('span','tob-m','Paid by '+x.p+(x.by&&x.by!==x.p?' · added by '+x.by:'')));var my=0;Object.keys(x.s||{}).forEach(function(q){if(C.canon(q)===C.me)my+=x.s[q]});if(my>0)l.appendChild(el('span','tob-m','Your share '+money(my)));w.appendChild(l);w.appendChild(el('b','',money(x.t)));li.appendChild(w);ul.appendChild(li)})}
+ks.forEach(function(k){var x=d.b[k],li=el('li','bi'),w=el('a','tob-a');w.href='#s='+k+'&f='+encodeURIComponent(C.me||tMe(t));w.addEventListener('click',function(){FVBK='#app/trips/'+t.id});var l=el('div'),a=el('b','',x.n||'Bill');a.style.display='block';l.appendChild(a);l.appendChild(el('span','tob-m','Paid by '+x.p+(x.by&&x.by!==x.p?' · added by '+x.by:'')));var my=0;Object.keys(x.s||{}).forEach(function(q){if(C.canon(q)===C.me)my+=x.s[q]});l.appendChild(el('span','tob-m',my>0?'Your share '+money(my)+' · tap to review':'Tap to tick your items'));w.appendChild(l);w.appendChild(el('b','',money(x.t)));li.appendChild(w);ul.appendChild(li)})}
 function tPay(t,l){var d=TD[t.tk]||{},u=(d.u||{})[String(l.t).toLowerCase()],a=rnd2(l.a);if(u){goPay('upi://pay?pa='+encodeURIComponent(u)+'&pn='+encodeURIComponent(l.t)+'&am='+a.toFixed(2)+'&cu=INR&tn='+encodeURIComponent(String(t.name||'Trip').slice(0,40)),$('tmsg'))}else{PMCTX={sh:a,payee:l.t};openPm()}}
 $('tsplit').addEventListener('click',function(){TSP=!TSP;tRender();if(TSP)$('tsp').scrollIntoView({block:'nearest',behavior:'smooth'})});
 $('tvs').addEventListener('click',function(){TVIEW='simple';tRender()});$('tvd').addEventListener('click',function(){TVIEW='detailed';tRender()});
@@ -1376,7 +1388,7 @@ $('jnx').addEventListener('click',function(){closeJoin();location.hash='#app/tri
 $('jnf').addEventListener('submit',function(e){e.preventDefault();if(!JN)return;var n=($('jnn').value.trim().replace(/\s+/g,' ')||JN.pick).slice(0,24);if(!n){$('jnm').textContent='Pick your name or type one.';return}var tk=JN.tk;$('jnok').disabled=true;
 tPost({op:'join',id:tk,name:n}).then(function(d){var t={id:'t'+(++tseq),name:d.n,tk:tk,me:n};trips.push(t);TD[tk]=d;persist();closeJoin();location.hash='#app/trips/'+t.id}).catch(function(){$('jnm').textContent='Couldn’t join. Check your connection and try again.'}).then(function(){$('jnok').disabled=false})});
 document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!$('jn').hidden){$('jnx').click()}});
-setInterval(function(){if(!user||document.hidden||$('app').hidden)return;tPush();var t=tById(TRIP);if(t&&t.tk&&!$('tdet').hidden)tFetch(t)},5000);
+setInterval(function(){if(!user||document.hidden||$('app').hidden)return;tPush();var t=tById(TRIP);if(t&&t.tk&&!$('tdet').hidden){tFetch(t).then(function(){tRelay(t,TD[t.tk])})}},5000);
 var EB=null,edTrig=null;
 function refreshLists(){renderBills();renderTrips();if(TRIP)tRender();if(TRIP)fill($('tbl'),$('tbe'),bills.filter(function(b){return b.trip===TRIP}))}
 function openEd(b,mode,trig){EB=b;edTrig=trig;var d=mode==='del';$('edm').hidden=d;$('dlm').hidden=!d;$('eds').classList.toggle('dg',d);
